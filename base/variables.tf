@@ -5,3 +5,7 @@ variable "cluster_id" {
 variable "worker_iam_role_name" {
  default = ""
 }
+
+variable "kubeconfig_filename" {
+  default = ""
+}
