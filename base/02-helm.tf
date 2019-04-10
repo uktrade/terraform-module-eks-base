@@ -1,4 +1,5 @@
 provider "helm" {
+  alias = "helm"
   install_tiller = true
   namespace = "kube-system"
   service_account = "tiller"
