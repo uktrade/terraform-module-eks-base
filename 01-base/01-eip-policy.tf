@@ -7,6 +7,7 @@ resource "aws_iam_role_policy" "eks-node-eip" {
   "Statement": [{
     "Effect": "Allow",
     "Action": [
+      "ec2:DescribeAddresses",
       "ec2:DisassociateAddress",
       "ec2:AssociateAddress"
     ],
