@@ -26,6 +26,16 @@ resource "kubernetes_cluster_role_binding" "tiller" {
   depends_on = ["kubernetes_service_account.tiller"]
 }
 
+resource "null_resource" "helm_init" {
+  provisioner "local-exec" {
+    command = "helm init --upgrade --wait --dry-run --debug"
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  depends_on = ["kubernetes_cluster_role_binding.tiller"]
+}
+
 provider "helm" {
   install_tiller = true
   namespace = "kube-system"
