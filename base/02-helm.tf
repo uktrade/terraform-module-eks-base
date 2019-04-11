@@ -28,7 +28,7 @@ resource "kubernetes_cluster_role_binding" "tiller" {
 
 resource "null_resource" "helm_init" {
   provisioner "local-exec" {
-    command = "helm init --upgrade --wait --dry-run --debug"
+    command = "helm init --upgrade --wait"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
