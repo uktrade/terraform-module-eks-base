@@ -1,5 +1,32 @@
+provider "kubernetes" {
+  config_path = "${var.kubeconfig_filename}"
+}
+
+resource "kubernetes_service_account" "tiller" {
+  metadata {
+    name = "tiller"
+    namespace = "kube-system"
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "tiller" {
+  metadata {
+    name = "tiller"
+  }
+  subject {
+    kind = "ServiceAccount"
+    name = "tiller"
+    namespace = "kube-system"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind = "ClusterRole"
+    name = "cluster-admin"
+  }
+  depends_on = ["kubernetes_service_account.tiller"]
+}
+
 provider "helm" {
-  alias = "helm"
   install_tiller = true
   namespace = "kube-system"
   service_account = "tiller"
