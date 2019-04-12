@@ -1,6 +1,6 @@
 locals {
   amazon-k8s-cni-release = "1.3"
-  amazon-k8s-cni-url = "https://github.com/aws/amazon-vpc-cni-k8s/tree/master/config/v${local.amazon-k8s-cni-release}"
+  amazon-k8s-cni-url = "https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/master/config/v${local.amazon-k8s-cni-release}"
 }
 
 resource "null_resource" "k8s-cni" {
