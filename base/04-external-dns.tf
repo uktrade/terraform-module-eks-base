@@ -89,17 +89,13 @@ spec:
         args:
         - --source=service
         - --source=ingress
-        - --domain-filter=${cluster_domain}
+        - --domain-filter=${var.cluster_domain}
         - --provider=aws
         - --policy=sync
         - --aws-zone-type=public
         - --registry=txt
-        - --txt-owner-id=${cluster_id}
+        - --txt-owner-id=${var.cluster_id}
 EOF
-  vars = {
-    cluster_domain = "${var.cluster_domain}"
-    cluster_id = "${var.cluster_id}"
-  }
 }
 
 resource "null_resource" "k8s-external-dns" {
