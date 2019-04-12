@@ -101,8 +101,8 @@ EOF
 resource "null_resource" "k8s-external-dns" {
   provisioner "local-exec" {
     command = <<EOF
-cat <<EOL | kubectl apply -f -
-"${data.template_file.eks-external-dns.rendered}"
+cat <<EOL | kubectl -n kube-system apply -f -
+${data.template_file.eks-external-dns.rendered}
 EOL
 EOF
     environment {
