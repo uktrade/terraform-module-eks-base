@@ -7,19 +7,9 @@ resource "aws_iam_role_policy" "eks-node-eip" {
   "Statement": [{
     "Effect": "Allow",
     "Action": [
-      "acm:ListCertificates",
-      "acm:DescribeCertificate",
-      "autoscaling:DescribeAutoScalingGroups",
-      "autoscaling:AttachLoadBalancers",
-      "autoscaling:DetachLoadBalancers",
-      "autoscaling:DetachLoadBalancerTargetGroups",
-      "autoscaling:AttachLoadBalancerTargetGroups",
-      "autoscaling:DescribeLoadBalancerTargetGroups",
-      "elasticloadbalancing:*",
-      "ec2:Describe*",
-      "iam:GetServerCertificate",
-      "iam:ListServerCertificates"
-    ],
+      "ec2:DescribeAddresses",
+      "ec2:DisassociateAddress",
+      "ec2:AssociateAddress"    ],
     "Resource": "*"
   }]
 }
