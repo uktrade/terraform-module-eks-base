@@ -28,6 +28,10 @@ resource "aws_iam_role_policy" "nginx-ingress" {
 EOF
 }
 
+data "aws_acm_certificate" "eks-acm" {
+  domain = "${var.cluster_domain}"
+  statuses = ["ISSUED"]
+}
 
 resource "helm_release" "nginx-ingress" {
   name = "nginx-ingress"
@@ -35,4 +39,15 @@ resource "helm_release" "nginx-ingress" {
   repository = "${data.helm_repository.stable.metadata.0.name}"
   chart = "nginx-ingress"
   version = "1.4.0"
+  set {
+    name = "controller.service.annotations"
+    value = <<EOF
+service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
+service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${data.aws_acm_certificate.eks-acm.arn}
+service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: ELBSecurityPolicy-TLS-1-2-2017-01
+service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
+EOF
+  }
 }
