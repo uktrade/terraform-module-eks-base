@@ -90,6 +90,7 @@ spec:
         - --source=service
         - --source=ingress
         - --domain-filter=${var.cluster_domain}
+        - --zone-id-filter=${data.aws_route53_zone.k8s-dns.zone_id}
         - --provider=aws
         - --policy=sync
         - --aws-zone-type=public
@@ -101,7 +102,7 @@ EOF
 resource "null_resource" "k8s-external-dns" {
   provisioner "local-exec" {
     command = <<EOF
-cat <<EOL | kubectl -n kube-system apply -f -
+cat <<EOL | kubectl apply -f -
 ${data.template_file.eks-external-dns.rendered}
 EOL
 EOF
