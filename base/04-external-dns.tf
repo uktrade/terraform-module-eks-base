@@ -32,6 +32,37 @@ resource "aws_iam_role_policy" "eks-route53" {
 EOF
 }
 
+resource "null_resource" "k8s-external-dns-policy" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n kube-system apply -f -
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: k8s-api
+spec:
+  selector: name == 'kubernetes'
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Allow
+      protocol: TCP
+      source:
+        namespaceSelector: name == 'kube-system'
+      destination:
+        ports:
+          - 443
+  egress:
+    - action: Allow
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
+
 data "template_file" "eks-external-dns" {
   template = <<EOF
 apiVersion: v1
@@ -68,7 +99,6 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: external-dns
-  namespace: default
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -102,7 +132,7 @@ EOF
 resource "null_resource" "k8s-external-dns" {
   provisioner "local-exec" {
     command = <<EOF
-cat <<EOL | kubectl apply -f -
+cat <<EOL | kubectl -n kube-system apply -f -
 ${data.template_file.eks-external-dns.rendered}
 EOL
 EOF
