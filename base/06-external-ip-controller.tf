@@ -35,9 +35,20 @@ spec:
         securityContext:
           privileged: true
         env:
-        # TODO this is specific for my vagrant environment, configmap should be used here
         - name: HOST_INTERFACE
-          value: eth0
+          valueFrom:
+            configMapKeyRef:
+              key: iface
+              name: externalipcontroller-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: externalipcontroller
+  name: externalipcontroller-config
+data:
+  iface: eth0
 EOF
 }
 
