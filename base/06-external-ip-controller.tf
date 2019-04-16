@@ -13,6 +13,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: externalipcontroller
+  namespace: kube-system
 roleRef:
   kind: ClusterRole
   name: cluster-admin
