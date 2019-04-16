@@ -46,6 +46,7 @@ controller:
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
 EOF
 }
+
 resource "helm_release" "nginx-ingress" {
   name = "nginx-ingress"
   namespace = "kube-system"
