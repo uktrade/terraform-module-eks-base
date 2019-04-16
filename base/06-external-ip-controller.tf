@@ -34,21 +34,21 @@ spec:
         app: externalipcontroller
     spec:
       hostNetwork: true
+      nodeSelector:
+        network: public
+      serviceAccount: externalipcontroller
       containers:
-      - name: externalipcontroller
-        image: mirantis/k8s-externalipcontroller
-        imagePullPolicy: IfNotPresent
-        securityContext:
-          privileged: true
-        serviceAccount: externalipcontroller
-        nodeSelector:
-          network: public
-        env:
+      - env:
         - name: HOST_INTERFACE
           valueFrom:
             configMapKeyRef:
               key: iface
               name: externalipcontroller-config
+        image: mirantis/k8s-externalipcontroller
+        imagePullPolicy: IfNotPresent
+        name: externalipcontroller
+        securityContext:
+          privileged: true
 ---
 apiVersion: v1
 kind: ConfigMap
