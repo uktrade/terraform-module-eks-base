@@ -40,6 +40,9 @@ spec:
         imagePullPolicy: IfNotPresent
         securityContext:
           privileged: true
+        serviceAccount: externalipcontroller
+        nodeSelector:
+          network: public
         env:
         - name: HOST_INTERFACE
           valueFrom:
