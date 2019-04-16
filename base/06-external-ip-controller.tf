@@ -1,13 +1,18 @@
 data "template_file" "eks-external-ip" {
   template = <<EOF
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: externalipcontroller
+---
 # https://github.com/Mirantis/k8s-externalipcontroller/blob/master/examples/auth.yaml
 kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1alpha1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: system:serviceaccounts
+  name: externalipcontroller
 subjects:
-- kind: Group
-  name: system:serviceaccounts
+- kind: ServiceAccount
+  name: externalipcontroller
 roleRef:
   kind: ClusterRole
   name: cluster-admin
