@@ -13,18 +13,3 @@ variable "worker_iam_role_name" {
 variable "kubeconfig_filename" {
   default = ""
 }
-
-variable "vpc_public_subnets" {
-  type = "list"
-  default = []
-}
-
-variable "vpc_private_subnets" {
-  type = "list"
-  default = []
-}
-
-variable "vpc_intra_subnets" {
-  type = "list"
-  default = []
-}
