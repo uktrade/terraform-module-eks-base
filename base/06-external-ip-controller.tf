@@ -10,7 +10,7 @@ resource "aws_network_interface" "eks-external-ip" {
     Stack = "${var.cluster_domain}"
     "kubernetes.io/cluster/${cluster_id}" = "shared"
     network = "public"
-    availability_zone = "${element(data.aws_subnet.eks-external-ip, count.index)}"
+    availability_zone = "${element(data.aws_subnet.eks-external-ip.availability_zone, count.index)}"
   }
 }
 
