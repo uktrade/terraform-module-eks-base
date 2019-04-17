@@ -16,15 +16,15 @@ variable "kubeconfig_filename" {
 
 variable "vpc_public_subnets" {
   type = "list"
-  defalut = []
+  default = []
 }
 
 variable "vpc_private_subnets" {
   type = "list"
-  defalut = []
+  default = []
 }
 
 variable "vpc_intra_subnets" {
   type = "list"
-  defalut = []
+  default = []
 }
