@@ -8,7 +8,7 @@ resource "aws_network_interface" "eks-external-ip" {
   subnet_id = "${element(var.vpc_public_subnets, count.index)}"
   tags {
     Stack = "${var.cluster_domain}"
-    "kubernetes.io/cluster/${cluster_id}" = "shared"
+    "kubernetes.io/cluster/${var.cluster_id}" = "shared"
     network = "public"
     availability_zone = "${element(data.aws_subnet.eks-external-ip.availability_zone, count.index)}"
   }
