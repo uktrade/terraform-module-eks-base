@@ -1,3 +1,19 @@
+data "aws_subnet" "eks-external-ip" {
+  count = "${length(var.vpc_public_subnets)}"
+  id = "${element(var.vpc_public_subnets, count.index)}"
+}
+
+resource "aws_network_interface" "eks-external-ip" {
+  count = "${length(var.vpc_public_subnets)}"
+  subnet_id = "${element(var.vpc_public_subnets, count.index)}"
+  tags {
+    Stack = "${var.cluster_domain}"
+    "kubernetes.io/cluster/${cluster_id}" = "shared"
+    network = "public"
+    availability_zone = "${element(data.aws_subnet.eks-external-ip, count.index)}"
+  }
+}
+
 data "template_file" "eks-external-ip" {
   template = <<EOF
 apiVersion: v1
