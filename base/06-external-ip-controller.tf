@@ -1,3 +1,10 @@
+locals {
+  common_tags = "${map(
+    "Stack", "${var.cluster_domain}",
+    "kubernetes.io/cluster/${var.cluster_id}", "shared"
+  )}"
+}
+
 data "aws_subnet" "eks-external-ip" {
   count = "${length(var.vpc_public_subnets)}"
   id = "${element(var.vpc_public_subnets, count.index)}"
@@ -6,24 +13,12 @@ data "aws_subnet" "eks-external-ip" {
 resource "aws_network_interface" "eks-external-ip" {
   count = "${length(var.vpc_public_subnets)}"
   subnet_id = "${element(var.vpc_public_subnets, count.index)}"
-  tags = [
-    {
-      key = "Stack"
-      value = "${var.cluster_domain}"
-    },
-    {
-      key = "kubernetes.io/cluster/${var.cluster_id}"
-      value = "shared"
-    },
-    {
-      key = "network"
-      value = "public"
-    },
-    {
-      key = "availability_zone"
-      value = "${element(data.aws_subnet.eks-external-ip.*.availability_zone, count.index)}"
-    }
-  ]
+  tags = "${merge(
+    local.common_tags,
+    map(
+      "network", "public",
+      "availability_zone", "${element(data.aws_subnet.eks-external-ip.*.availability_zone, count.index)}"
+  ))}"
   # tags {
   #   Stack = "${var.cluster_domain}"
   #   "kubernetes.io/cluster/${var.cluster_id}" = "shared"
