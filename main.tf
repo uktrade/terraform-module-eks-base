@@ -4,7 +4,4 @@ module "eks-base" {
   cluster_domain = "${var.cluster_domain}"
   worker_iam_role_name = "${var.worker_iam_role_name}"
   kubeconfig_filename = "${var.kubeconfig_filename}"
-  vpc_public_subnets = "${var.vpc_public_subnets}"
-  vpc_private_subnets = "${var.vpc_private_subnets}"
-  vpc_intra_subnets = "${var.vpc_intra_subnets}"
 }
