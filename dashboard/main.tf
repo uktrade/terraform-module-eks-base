@@ -1,7 +1,7 @@
 resource "helm_release" "heapster" {
   name = "heapster"
   namespace = "kube-system"
-  repository = "${data.helm_repository.stable.metadata.0.name}"
+  repository = "stable"
   chart = "heapster"
   version = "0.3.3"
 }
@@ -31,7 +31,7 @@ resource "helm_release" "oauth-proxy" {
 resource "helm_release" "dashboard" {
   name = "kubernetes-dashboard"
   namespace = "kube-system"
-  repository = "${data.helm_repository.stable.metadata.0.name}"
+  repository = "stable"
   chart = "kubernetes-dashboard"
   version = "1.5.1"
 }
