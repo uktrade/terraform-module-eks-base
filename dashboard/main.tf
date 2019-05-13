@@ -48,6 +48,7 @@ resource "helm_release" "dashboard" {
 
 data "template_file" "dashboard-ingress" {
   template = <<EOF
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: dashboard-oauth2
