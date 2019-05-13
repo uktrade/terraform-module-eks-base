@@ -72,7 +72,7 @@ resource "null_resource" "dashboard-ingress" {
   provisioner "local-exec" {
     command = <<EOF
 cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.dashboard-oauth-ingress.rendered}
+${data.template_file.dashboard-ingress.rendered}
 EOL
 EOF
     environment {
