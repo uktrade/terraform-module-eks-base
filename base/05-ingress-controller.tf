@@ -55,3 +55,30 @@ resource "helm_release" "nginx-ingress" {
   version = "1.6.0"
   values = ["${data.template_file.nginx-ingress-values.rendered}"]
 }
+
+data "template_file" "nginx-ingress-config" {
+  template = <<EOF
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-ingress-controller
+data:
+  use-proxy-protocol: "false"
+  use-forwarded-headers: "true"
+  proxy-real-ip-cidr: "0.0.0.0/0" # restrict this to the IP addresses of ELB
+  enable-vts-status: "true"
+EOF
+}
+
+resource "null_resource" "nginx-ingress-config" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n kube-system apply -f -
+${data.template_file.nginx-ingress-config.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
