@@ -15,9 +15,11 @@ variable "kubeconfig_filename" {
 }
 
 variable "dashboard_oauth_config" {
-  default = ""
+  type = "map"
+  default = {}
 }
 
 variable "registry_oauth_config" {
-  default = ""
+  type = "map"
+  default = {}
 }
