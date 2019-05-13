@@ -4,4 +4,6 @@ module "eks-base" {
   cluster_domain = "${var.cluster_domain}"
   worker_iam_role_name = "${var.worker_iam_role_name}"
   kubeconfig_filename = "${var.kubeconfig_filename}"
+  dashboard_oauth_config = "${var.dashboard_oauth_config}"
+  registry_oauth_config = "${var.registry_oauth_config}"
 }
