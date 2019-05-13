@@ -13,3 +13,8 @@ variable "worker_iam_role_name" {
 variable "kubeconfig_filename" {
   default = ""
 }
+
+variable "dashboard_oauth_config" {
+  type = "map"
+  default = {}
+}
