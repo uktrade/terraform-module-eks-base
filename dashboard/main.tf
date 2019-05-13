@@ -28,15 +28,25 @@ resource "helm_release" "oauth-proxy" {
   values = ["${data.template_file.oauth-proxy-values.rendered}"]
 }
 
+data "template_file" "dashboard-values" {
+  template = <<EOF
+enableInsecureLogin: true
+service:
+  externalPort: 8080
+  internalPort: 8080
+EOF
+}
+
 resource "helm_release" "dashboard" {
   name = "kubernetes-dashboard"
   namespace = "kube-system"
   repository = "stable"
   chart = "kubernetes-dashboard"
   version = "1.5.1"
+  values = ["${data.template_file.dashboard-values.rendered}"]
 }
 
-data "template_file" "dashboard-oauth-ingress" {
+data "template_file" "dashboard-ingress" {
   template = <<EOF
 kind: Ingress
 metadata:
@@ -50,10 +60,23 @@ spec:
       - path: /oauth2
         backend:
           serviceName: oauth2-proxy
-          servicePort: 4180
+          servicePort: 80
       - path: /
         backend:
           serviceName: kubernetes-dashboard
           servicePort: 8080
 EOF
+}
+
+resource "null_resource" "dashboard-ingress" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n kube-system apply -f -
+${data.template_file.dashboard-oauth-ingress.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
 }
