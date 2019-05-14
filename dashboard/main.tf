@@ -53,6 +53,8 @@ kind: Ingress
 metadata:
   name: dashboard-oauth2
   namespace: kube-system
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
   - host: console.v3.uktrade.io
