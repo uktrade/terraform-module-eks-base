@@ -53,7 +53,7 @@ resource "helm_release" "dashboard" {
   values = ["${data.template_file.dashboard-values.rendered}"]
 }
 
-data "template_file" "dashboard-ingress" {
+data "template_file" "dashboard-oauth" {
   template = <<EOF
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -72,33 +72,11 @@ spec:
 EOF
 }
 
-# data "template_file" "dashboard-ingress-external" {
-#   template = <<EOF
-# apiVersion: extensions/v1beta1
-# kind: Ingress
-# metadata:
-#   name: dashboard
-#   namespace: kube-system
-#   annotations:
-#     nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
-#     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
-# spec:
-#   rules:
-#   - host: "console.${var.cluster_domain}"
-#     http:
-#       paths:
-#       - path: /
-#         backend:
-#           serviceName: kubernetes-dashboard
-#           servicePort: 8080
-# EOF
-# }
-
-resource "null_resource" "dashboard-ingress" {
+resource "null_resource" "dashboard-oauth" {
   provisioner "local-exec" {
     command = <<EOF
 cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.dashboard-ingress.rendered}
+${data.template_file.dashboard-oauth.rendered}
 EOL
 EOF
     environment {
@@ -106,16 +84,3 @@ EOF
     }
   }
 }
-
-# resource "null_resource" "dashboard-ingress-external" {
-#   provisioner "local-exec" {
-#     command = <<EOF
-# cat <<EOL | kubectl -n kube-system apply -f -
-# ${data.template_file.dashboard-ingress-external.rendered}
-# EOL
-# EOF
-#     environment {
-#       KUBECONFIG = "${var.kubeconfig_filename}"
-#     }
-#   }
-# }
