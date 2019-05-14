@@ -97,7 +97,7 @@ EOF
   }
 }
 
-resource "null_resource" "dashboard-ingress" {
+resource "null_resource" "dashboard-ingress-external" {
   provisioner "local-exec" {
     command = <<EOF
 cat <<EOL | kubectl -n kube-system apply -f -
