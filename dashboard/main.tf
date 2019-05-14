@@ -30,7 +30,6 @@ resource "helm_release" "oauth-proxy" {
 
 data "template_file" "dashboard-values" {
   template = <<EOF
-enableInsecureLogin: true
 service:
   externalPort: 8080
   internalPort: 8080
@@ -72,6 +71,9 @@ kind: Ingress
 metadata:
   name: dashboard
   namespace: kube-system
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
 spec:
   rules:
   - host: "console.${var.cluster_domain}"
