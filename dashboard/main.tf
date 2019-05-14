@@ -30,9 +30,16 @@ resource "helm_release" "oauth-proxy" {
 
 data "template_file" "dashboard-values" {
   template = <<EOF
+enableInsecureLogin: true
 service:
   externalPort: 8080
   internalPort: 8080
+ingress:
+  enabled: true
+  hosts: "console.${var.cluster_domain}"
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
 EOF
 }
 
@@ -64,27 +71,27 @@ spec:
 EOF
 }
 
-data "template_file" "dashboard-ingress-external" {
-  template = <<EOF
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: dashboard
-  namespace: kube-system
-  annotations:
-    nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
-    nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
-spec:
-  rules:
-  - host: "console.${var.cluster_domain}"
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: kubernetes-dashboard
-          servicePort: 8080
-EOF
-}
+# data "template_file" "dashboard-ingress-external" {
+#   template = <<EOF
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: dashboard
+#   namespace: kube-system
+#   annotations:
+#     nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+#     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+# spec:
+#   rules:
+#   - host: "console.${var.cluster_domain}"
+#     http:
+#       paths:
+#       - path: /
+#         backend:
+#           serviceName: kubernetes-dashboard
+#           servicePort: 8080
+# EOF
+# }
 
 resource "null_resource" "dashboard-ingress" {
   provisioner "local-exec" {
@@ -99,15 +106,15 @@ EOF
   }
 }
 
-resource "null_resource" "dashboard-ingress-external" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.dashboard-ingress-external.rendered}
-EOL
-EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
-  }
-}
+# resource "null_resource" "dashboard-ingress-external" {
+#   provisioner "local-exec" {
+#     command = <<EOF
+# cat <<EOL | kubectl -n kube-system apply -f -
+# ${data.template_file.dashboard-ingress-external.rendered}
+# EOL
+# EOF
+#     environment {
+#       KUBECONFIG = "${var.kubeconfig_filename}"
+#     }
+#   }
+# }
