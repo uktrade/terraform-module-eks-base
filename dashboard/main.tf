@@ -84,3 +84,39 @@ EOF
     }
   }
 }
+
+data "template_file" "eks-admin" {
+  template = <<EOF
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: eks-admin
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: eks-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: eks-admin
+  namespace: kube-system
+EOF
+}
+
+resource "null_resource" "eks-admin" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n kube-system apply -f -
+${data.template_file.eks-admin.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
