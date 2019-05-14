@@ -53,8 +53,6 @@ kind: Ingress
 metadata:
   name: dashboard-oauth2
   namespace: kube-system
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
   - host: "console.${var.cluster_domain}"
@@ -64,6 +62,21 @@ spec:
         backend:
           serviceName: oauth2-proxy
           servicePort: 80
+EOF
+}
+
+data "template_file" "dashboard-ingress-external" {
+  template = <<EOF
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dashboard
+  namespace: kube-system
+spec:
+  rules:
+  - host: "console.${var.cluster_domain}"
+    http:
+      paths:
       - path: /
         backend:
           serviceName: kubernetes-dashboard
@@ -76,6 +89,19 @@ resource "null_resource" "dashboard-ingress" {
     command = <<EOF
 cat <<EOL | kubectl -n kube-system apply -f -
 ${data.template_file.dashboard-ingress.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
+
+resource "null_resource" "dashboard-ingress" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n kube-system apply -f -
+${data.template_file.dashboard-ingress-external.rendered}
 EOL
 EOF
     environment {
