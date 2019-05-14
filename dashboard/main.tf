@@ -9,11 +9,11 @@ resource "helm_release" "heapster" {
 data "template_file" "oauth-proxy-values" {
   template = <<EOF
 config:
+  clientID: "${var.dashboard_oauth_config["client_id"]}"
+  clientSecret: "${var.dashboard_oauth_config["client_secret"]}"
+  cookieSecret: "${var.dashboard_oauth_config["cookie_secret"]}"
   configFile: |-
     provider = "${var.dashboard_oauth_config["provider"]}"
-    client-id = "${var.dashboard_oauth_config["client_id"]}"
-    client-secret = "${var.dashboard_oauth_config["client_secret"]}"
-    cookie-secret = "${var.dashboard_oauth_config["cookie_secret"]}"
     github_org = "${var.dashboard_oauth_config["github_org"]}"
     github_team = "${var.dashboard_oauth_config["github_team"]}"
     email_domains = ["*"]
