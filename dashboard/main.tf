@@ -11,8 +11,9 @@ data "template_file" "oauth-proxy-values" {
 config:
   configFile: |-
     provider = "${var.dashboard_oauth_config["provider"]}"
-    client_id = "${var.dashboard_oauth_config["client_id"]}"
-    client_secret = "${var.dashboard_oauth_config["client_secret"]}"
+    client-id = "${var.dashboard_oauth_config["client_id"]}"
+    client-secret = "${var.dashboard_oauth_config["client_secret"]}"
+    cookie-secret = "${var.dashboard_oauth_config["cookie_secret"]}"
     github_org = "${var.dashboard_oauth_config["github_org"]}"
     github_team = "${var.dashboard_oauth_config["github_team"]}"
     email_domains = ["*"]
