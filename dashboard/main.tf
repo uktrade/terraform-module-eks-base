@@ -59,7 +59,6 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: dashboard-oauth2
-  namespace: kube-system
 spec:
   rules:
   - host: "console.${var.cluster_domain}"

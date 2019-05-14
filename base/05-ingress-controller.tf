@@ -33,6 +33,56 @@ data "aws_acm_certificate" "eks-acm" {
   statuses = ["ISSUED"]
 }
 
+# data "template_file" "nginx-tcp" {
+#   template = <<EOF
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   labels:
+#     app.kubernetes.io/name: nginx-ingress-controller
+#     app.kubernetes.io/part-of: nginx-ingress-controller
+#   name: tcp-services
+# EOF
+# }
+#
+# data "template_file" "nginx-udp" {
+#   template = <<EOF
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   labels:
+#     app.kubernetes.io/name: nginx-ingress-controller
+#     app.kubernetes.io/part-of: nginx-ingress-controller
+#   name: udp-services
+# EOF
+# }
+#
+# resource "null_resource" "nginx-tcp" {
+#   provisioner "local-exec" {
+#     command = <<EOF
+# cat <<EOL | kubectl -n kube-system apply -f -
+# ${data.template_file.nginx-tcp.rendered}
+# EOL
+# EOF
+#     environment {
+#       KUBECONFIG = "${var.kubeconfig_filename}"
+#     }
+#   }
+# }
+#
+# resource "null_resource" "nginx-udp" {
+#   provisioner "local-exec" {
+#     command = <<EOF
+# cat <<EOL | kubectl -n kube-system apply -f -
+# ${data.template_file.nginx-udp.rendered}
+# EOL
+# EOF
+#     environment {
+#       KUBECONFIG = "${var.kubeconfig_filename}"
+#     }
+#   }
+# }
+
 data "template_file" "nginx-ingress-values" {
   template = <<EOF
 controller:
@@ -44,6 +94,25 @@ controller:
       service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${data.aws_acm_certificate.eks-acm.arn}
       service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: ELBSecurityPolicy-TLS-1-2-2017-01
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
+  config:
+    server-tokens: "false"
+    use-forwarded-headers: "true"
+    use-proxy-protocol: "false"
+    enable-vts-status: "true"
+    proxy-real-ip-cidr: 0.0.0.0/0
+    proxy-body-size: 5G
+  extraArgs:
+    annotations-prefix: nginx.ingress.kubernetes.io
+  publishService:
+    enabled: true
+defaultBackend:
+  enabled: false
+stats:
+  enabled: true
+metrics:
+  enabled: true
+tcp: {}
+udp: {}
 EOF
 }
 
@@ -54,31 +123,4 @@ resource "helm_release" "nginx-ingress" {
   chart = "nginx-ingress"
   version = "1.6.0"
   values = ["${data.template_file.nginx-ingress-values.rendered}"]
-}
-
-data "template_file" "nginx-ingress-config" {
-  template = <<EOF
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: nginx-ingress-controller
-data:
-  use-proxy-protocol: "false"
-  use-forwarded-headers: "true"
-  proxy-real-ip-cidr: "0.0.0.0/0" # restrict this to the IP addresses of ELB
-  enable-vts-status: "true"
-EOF
-}
-
-resource "null_resource" "nginx-ingress-config" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.nginx-ingress-config.rendered}
-EOL
-EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
-  }
 }
