@@ -36,7 +36,8 @@ service:
   internalPort: 8080
 ingress:
   enabled: true
-  hosts: "console.${var.cluster_domain}"
+  hosts:
+    - "console.${var.cluster_domain}"
   annotations:
     nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
