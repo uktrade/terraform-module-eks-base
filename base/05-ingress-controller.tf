@@ -33,55 +33,55 @@ data "aws_acm_certificate" "eks-acm" {
   statuses = ["ISSUED"]
 }
 
-# data "template_file" "nginx-tcp" {
-#   template = <<EOF
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   labels:
-#     app.kubernetes.io/name: nginx-ingress-controller
-#     app.kubernetes.io/part-of: nginx-ingress-controller
-#   name: tcp-services
-# EOF
-# }
-#
-# data "template_file" "nginx-udp" {
-#   template = <<EOF
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   labels:
-#     app.kubernetes.io/name: nginx-ingress-controller
-#     app.kubernetes.io/part-of: nginx-ingress-controller
-#   name: udp-services
-# EOF
-# }
-#
-# resource "null_resource" "nginx-tcp" {
-#   provisioner "local-exec" {
-#     command = <<EOF
-# cat <<EOL | kubectl -n kube-system apply -f -
-# ${data.template_file.nginx-tcp.rendered}
-# EOL
-# EOF
-#     environment {
-#       KUBECONFIG = "${var.kubeconfig_filename}"
-#     }
-#   }
-# }
-#
-# resource "null_resource" "nginx-udp" {
-#   provisioner "local-exec" {
-#     command = <<EOF
-# cat <<EOL | kubectl -n kube-system apply -f -
-# ${data.template_file.nginx-udp.rendered}
-# EOL
-# EOF
-#     environment {
-#       KUBECONFIG = "${var.kubeconfig_filename}"
-#     }
-#   }
-# }
+data "template_file" "nginx-tcp" {
+  template = <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: nginx-ingress-controller
+    app.kubernetes.io/part-of: nginx-ingress-controller
+  name: tcp-services
+EOF
+}
+
+data "template_file" "nginx-udp" {
+  template = <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: nginx-ingress-controller
+    app.kubernetes.io/part-of: nginx-ingress-controller
+  name: udp-services
+EOF
+}
+
+resource "null_resource" "nginx-tcp" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n kube-system apply -f -
+${data.template_file.nginx-tcp.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
+
+resource "null_resource" "nginx-udp" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n kube-system apply -f -
+${data.template_file.nginx-udp.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
 
 data "template_file" "nginx-ingress-values" {
   template = <<EOF
@@ -102,6 +102,8 @@ controller:
     proxy-real-ip-cidr: 0.0.0.0/0
     proxy-body-size: 5G
   extraArgs:
+    tcp-services-configmap: $(POD_NAMESPACE)/tcp-services
+    udp-services-configmap: $(POD_NAMESPACE)/udp-services
     annotations-prefix: nginx.ingress.kubernetes.io
   publishService:
     enabled: true
@@ -111,8 +113,6 @@ stats:
   enabled: true
 metrics:
   enabled: true
-tcp: {}
-udp: {}
 EOF
 }
 
