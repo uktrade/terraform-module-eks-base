@@ -57,7 +57,7 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
-  - host: console.v3.uktrade.io
+  - host: "console.${var.cluster_domain}"
     http:
       paths:
       - path: /oauth2
