@@ -27,6 +27,9 @@ config:
     github_org = "${var.dashboard_oauth_config["github_org"]}"
     github_team = "${var.dashboard_oauth_config["github_team"]}"
     email_domains = ["*"]
+    cookie_refresh = 60
+    pass_access_token = true
+    upstream = "file:///dev/null"
 EOF
 }
 
@@ -51,6 +54,7 @@ ingress:
   hosts:
     - "console.${var.cluster_domain}"
   annotations:
+    kubernetes.io/ingress.allow-http: "false"
     nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
 EOF
