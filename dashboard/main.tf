@@ -46,6 +46,8 @@ data "template_file" "dashboard-values" {
   template = <<EOF
 enableInsecureLogin: true
 enableSkipLogin: true
+extraArgs:
+  - --disable-settings-authorizer
 service:
   externalPort: 8080
   internalPort: 8080
