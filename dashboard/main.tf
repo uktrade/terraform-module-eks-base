@@ -1,6 +1,9 @@
 data "template_file" "heapster-values" {
   template = <<EOF
-command: "/heapster --source=kubernetes:https://kubernetes.default --sink=influxdb:http://monitoring-influxdb.kube-system.svc:8086"
+command:
+  - /heapster
+  - --source=kubernetes:https://kubernetes.default
+  - --sink=influxdb:http://monitoring-influxdb.kube-system.svc:8086
 EOF
 }
 
