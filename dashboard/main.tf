@@ -144,8 +144,10 @@ resource "kubernetes_cluster_role_binding" "dashboard-admin" {
 
 data "kubernetes_secret" "eks-admin-token" {
   metadata {
-    name = "eks-admin"
     namespace = "kube-system"
+    annotations {
+      "kubernetes.io/service-account.name" = "eks-admin"
+    }
   }
 }
 
