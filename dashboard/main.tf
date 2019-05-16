@@ -1,3 +1,7 @@
+provider "kubernetes" {
+  config_path = "${var.kubeconfig_filename}"
+}
+
 data "template_file" "heapster-values" {
   template = <<EOF
 command:
