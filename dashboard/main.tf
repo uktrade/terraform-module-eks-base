@@ -142,12 +142,24 @@ resource "kubernetes_cluster_role_binding" "dashboard-admin" {
   }
 }
 
+# resource "null_resource" "eks-admin-token" {
+#   provisioner "local-exec" {
+#     command = "kubectl -n kube-system get secret | grep eks-admin | awk '{print $1}'"
+#     environment {
+#       KUBECONFIG = "${var.kubeconfig_filename}"
+#     }
+#   }
+# }
+
+module "eks-admin-token" {
+  source  = "matti/resource/shell"
+  command = "KUBECONFIG=${var.kubeconfig_filename} kubectl -n kube-system get secret | grep eks-admin | awk '{print $1}'"
+}
+
 data "kubernetes_secret" "eks-admin-token" {
   metadata {
+    name = "${module.eks-admin-token.stdout}"
     namespace = "kube-system"
-    annotations {
-      "kubernetes.io/service-account.name" = "eks-admin"
-    }
   }
 }
 
