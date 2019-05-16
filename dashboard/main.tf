@@ -192,6 +192,6 @@ resource "kubernetes_secret" "dashboard-kubeconfig" {
     namespace = "kube-system"
   }
   data {
-    kubeconfig = "${data.template_file.dashboard_kubeconfig.rendered}"
+    kubeconfig = "${data.template_file.dashboard-kubeconfig.rendered}"
   }
 }
