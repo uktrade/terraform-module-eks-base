@@ -170,24 +170,26 @@ resource "kubernetes_secret" "dashboard-kubeconfig" {
   }
   data {
     kubeconfig = <<EOF
+"
 apiVersion: v1
 kind: Config
 preferences: {}
 current-context: v3-uktrade-io
 clusters:
-- cluster:
-    certificate-authority-data: ${var.cluster_ca_certificate}
-    server: https://kubernetes.default
-  name: ${var.cluster_id}
+  - name: ${var.cluster_id}
+    cluster:
+      certificate-authority-data: ${var.cluster_ca_certificate}
+      server: https://kubernetes.default
 contexts:
-- context:
-    cluster: ${var.cluster_id}
-    user: ${var.cluster_id}
-  name: ${var.cluster_id}
+  - name: ${var.cluster_id}
+    context:
+      cluster: ${var.cluster_id}
+      user: ${var.cluster_id}
 users:
-- name: ${var.cluster_id}
-  user:
-    token: ${data.kubernetes_secret.eks-admin-token.data["token"]}
+  - name: ${var.cluster_id}
+    user:
+      token: ${data.kubernetes_secret.eks-admin-token.data["token"]}
+"
 EOF
   }
 }
