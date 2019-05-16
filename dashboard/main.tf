@@ -208,7 +208,7 @@ spec:
           items:
           - key: kubeconfig
             path: config
-            mode: 420
+            mode: 422
       containers:
         - name: kubernetes-dashboard
           env:
