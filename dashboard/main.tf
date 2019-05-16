@@ -166,42 +166,32 @@ output "eks-admin-token" {
 data "template_file" "dashboard-kubeconfig" {
   template = <<EOF
 apiVersion: v1
-kind: Secret
-metadata:
-  name: kubernetes-dashboard-kubeconfig
-type: Opaque
-stringData:
-  kubeconfig: |-
-    apiVersion: v1
-    kind: Config
-    preferences: {}
-    current-context: v3-uktrade-io
-    clusters:
-    - name: ${var.cluster_id}
-      cluster:
-        certificate-authority-data: ${var.cluster_ca_certificate}
-        server: https://kubernetes.default
-    contexts:
-    - name: ${var.cluster_id}
-      context:
-        cluster: ${var.cluster_id}
-        user: ${var.cluster_id}
-    users:
-    - name: ${var.cluster_id}
-      user:
-        token: "${lookup(data.kubernetes_secret.eks-admin-token.data, "token")}"
+kind: Config
+preferences: {}
+current-context: v3-uktrade-io
+clusters:
+- name: ${var.cluster_id}
+  cluster:
+    certificate-authority-data: ${var.cluster_ca_certificate}
+    server: https://kubernetes.default
+contexts:
+- name: ${var.cluster_id}
+  context:
+    cluster: ${var.cluster_id}
+    user: ${var.cluster_id}
+users:
+- name: ${var.cluster_id}
+  user:
+    token: "${lookup(data.kubernetes_secret.eks-admin-token.data, "token")}"
 EOF
 }
 
-resource "null_resource" "dashboard-kubeconfig" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.dashboard-kubeconfig.rendered}
-EOL
-EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
+resource "kubernetes_secret" "dashboard-kubeconfig" {
+  metadata {
+    name = "kubernetes-dashboard-kubeconfig"
+    namespace = "kube-system"
+  }
+  data {
+    kubeconfig = "${data.template_file.dashboard-kubeconfig.rendered}"
   }
 }
