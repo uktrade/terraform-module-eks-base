@@ -6,6 +6,10 @@ variable "cluster_domain" {
   default = ""
 }
 
+variable "cluster_ca_certificate" {
+  default = ""
+}
+
 variable "worker_iam_role_name" {
  default = ""
 }

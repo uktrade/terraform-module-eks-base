@@ -1,25 +1,49 @@
+locals {
+  externalipcontroller-release = "master"
+  externalipcontroller-url = "https://raw.githubusercontent.com/Mirantis/k8s-externalipcontroller/${local.externalipcontroller-release}/examples/simple/externalipcontroller.yaml"
+}
+
+resource "kubernetes_service_account" "eks-externalipcontroller" {
+  metadata {
+    name = "externalipcontroller"
+    namespace = "kube-system"
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "eks-externalipcontroller" {
+  metadata {
+    name = "externalipcontroller"
+    namespace = "kube-system"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind = "ClusterRole"
+    name = "cluster-admin"
+  }
+  subject {
+    kind = "ServiceAccount"
+    name = "externalipcontroller"
+    namespace = "kube-system"
+  }
+}
+
+resource "kubernetes_config_map" "eks-externalipcontroller" {
+  metadata {
+    name = "externalipcontroller-config"
+    namespace = "kube-system"
+    labels {
+      app = "externalipcontroller"
+    }
+  }
+  data {
+    iface = "eth0"
+  }
+}
+
+# Add custom configs to default deployment spec
+# https://github.com/Mirantis/k8s-externalipcontroller/blob/master/examples/simple/externalipcontroller.yaml
 data "template_file" "eks-external-ip" {
   template = <<EOF
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: externalipcontroller
----
-# https://github.com/Mirantis/k8s-externalipcontroller/blob/master/examples/auth.yaml
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: externalipcontroller
-subjects:
-- kind: ServiceAccount
-  name: externalipcontroller
-  namespace: kube-system
-roleRef:
-  kind: ClusterRole
-  name: cluster-admin
-  apiGroup: rbac.authorization.k8s.io
----
-# https://github.com/Mirantis/k8s-externalipcontroller/blob/master/examples/simple/externalipcontroller.yaml
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -49,15 +73,6 @@ spec:
         name: externalipcontroller
         securityContext:
           privileged: true
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    app: externalipcontroller
-  name: externalipcontroller-config
-data:
-  iface: eth0
 EOF
 }
 

@@ -33,53 +33,17 @@ data "aws_acm_certificate" "eks-acm" {
   statuses = ["ISSUED"]
 }
 
-data "template_file" "nginx-tcp" {
-  template = <<EOF
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    app.kubernetes.io/name: nginx-ingress-controller
-    app.kubernetes.io/part-of: nginx-ingress-controller
-  name: tcp-services
-EOF
-}
-
-data "template_file" "nginx-udp" {
-  template = <<EOF
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    app.kubernetes.io/name: nginx-ingress-controller
-    app.kubernetes.io/part-of: nginx-ingress-controller
-  name: udp-services
-EOF
-}
-
-resource "null_resource" "nginx-tcp" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.nginx-tcp.rendered}
-EOL
-EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
+resource "kubernetes_config_map" "tcp-services" {
+  metadata {
+    name = "tcp-services"
+    namespace = "kube-system"
   }
 }
 
-resource "null_resource" "nginx-udp" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.nginx-udp.rendered}
-EOL
-EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
+resource "kubernetes_config_map" "udp-services" {
+  metadata {
+    name = "udp-services"
+    namespace = "kube-system"
   }
 }
 

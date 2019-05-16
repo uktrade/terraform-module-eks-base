@@ -71,6 +71,7 @@ resource "helm_release" "dashboard" {
   values = ["${data.template_file.dashboard-values.rendered}"]
 }
 
+# Terraform has no Ingress resource support yet
 data "template_file" "dashboard-oauth" {
   template = <<EOF
 apiVersion: extensions/v1beta1
@@ -102,70 +103,79 @@ EOF
   }
 }
 
-data "template_file" "eks-admin" {
-  template = <<EOF
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: eks-admin
-  namespace: kube-system
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: eks-admin
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: eks-admin
-  namespace: kube-system
-EOF
-}
-
-resource "null_resource" "eks-admin" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.eks-admin.rendered}
-EOL
-EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
+resource "kubernetes_service_account" "eks-admin" {
+  metadata {
+    name = "eks-admin"
+    namespace = "kube-system"
   }
 }
 
-data "template_file" "dashboard-admin" {
-  template = <<EOF
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: kubernetes-dashboard
-  labels:
-    k8s-app: kubernetes-dashboard
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: kubernetes-dashboard
-  namespace: kube-system
-EOF
+resource "kubernetes_cluster_role_binding" "eks-admin" {
+  metadata {
+    name = "eks-admin"
+    namespace = "kube-system"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind = "ClusterRole"
+    name = "cluster-admin"
+  }
+  subject {
+    kind = "ServiceAccount"
+    name = "eks-admin"
+    namespace = "kube-system"
+  }
 }
 
-resource "null_resource" "dashboard-admin" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.dashboard-admin.rendered}
-EOL
+resource "kubernetes_cluster_role_binding" "dashboard-admin" {
+  metadata {
+    name = "kubernetes-dashboard"
+    namespace = "kube-system"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind = "ClusterRole"
+    name = "cluster-admin"
+  }
+  subject {
+    kind = "ServiceAccount"
+    name = "kubernetes-dashboard"
+    namespace = "kube-system"
+  }
+}
+
+data "kubernetes_secret" "eks-admin-token" {
+  metadata {
+    name = "eks-admin"
+    namespace = "kube-system"
+  }
+}
+
+resource "kubernetes_secret" "dashboard-kubeconfig" {
+  metadata {
+    name = "kubernetes-dashboard-kubeconfig"
+    namespace = "kube-system"
+  }
+  data {
+    kubeconfig = <<EOF
+apiVersion: v1
+kind: Config
+preferences: {}
+current-context: v3-uktrade-io
+clusters:
+- cluster:
+    certificate-authority-data: ${var.cluster_ca_certificate}
+    server: https://kubernetes.default
+  name: ${var.cluster_id}
+contexts:
+- context:
+    cluster: ${var.cluster_id}
+    user: ${var.cluster_id}
+  name: ${var.cluster_id}
+users:
+- name: ${var.cluster_id}
+  user:
+    token: ${data.kubernetes_secret.eks-admin-token.data["token"]}
 EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
   }
 }
