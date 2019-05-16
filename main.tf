@@ -10,6 +10,7 @@ module "eks-dashboard" {
   source = "github.com/uktrade/terraform-module-eks-base//dashboard"
   cluster_id = "${var.cluster_id}"
   cluster_domain = "${var.cluster_domain}"
+  cluster_ca_certificate = "${module.eks.cluster_certificate_authority_data}"
   kubeconfig_filename = "${var.kubeconfig_filename}"
   dashboard_oauth_config = "${var.dashboard_oauth_config}"
 }

@@ -182,7 +182,7 @@ contexts:
 users:
 - name: ${var.cluster_id}
   user:
-    token: "${lookup(data.kubernetes_secret.eks-admin-token.data, "token")}"
+    token: ${lookup(data.kubernetes_secret.eks-admin-token.data, "token")}
 EOF
 }
 
