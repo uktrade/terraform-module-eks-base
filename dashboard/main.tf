@@ -205,6 +205,7 @@ spec:
       - name: kubernetes-dashboard-kubeconfig
         secret:
           secretName: kubernetes-dashboard-kubeconfig
+          defaultMode: 422
           items:
           - key: kubeconfig
             path: config
