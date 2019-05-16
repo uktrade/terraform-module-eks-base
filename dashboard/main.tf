@@ -113,7 +113,6 @@ resource "kubernetes_service_account" "eks-admin" {
 resource "kubernetes_cluster_role_binding" "eks-admin" {
   metadata {
     name = "eks-admin"
-    namespace = "kube-system"
   }
   role_ref {
     api_group = "rbac.authorization.k8s.io"
@@ -130,7 +129,6 @@ resource "kubernetes_cluster_role_binding" "eks-admin" {
 resource "kubernetes_cluster_role_binding" "dashboard-admin" {
   metadata {
     name = "kubernetes-dashboard"
-    namespace = "kube-system"
   }
   role_ref {
     api_group = "rbac.authorization.k8s.io"
