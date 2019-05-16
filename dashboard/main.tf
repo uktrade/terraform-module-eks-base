@@ -163,33 +163,35 @@ data "kubernetes_secret" "eks-admin-token" {
   }
 }
 
+data "template_file" "dashboard-kubeconfig" {
+  template = <<EOF
+apiVersion: v1
+kind: Config
+preferences: {}
+current-context: v3-uktrade-io
+clusters:
+- name: ${var.cluster_id}
+  cluster:
+    certificate-authority-data: ${var.cluster_ca_certificate}
+    server: https://kubernetes.default
+contexts:
+- name: ${var.cluster_id}
+  context:
+    cluster: ${var.cluster_id}
+    user: ${var.cluster_id}
+users:
+- name: ${var.cluster_id}
+  user:
+    token: ${data.kubernetes_secret.eks-admin-token.data["token"]}
+EOF
+}
+
 resource "kubernetes_secret" "dashboard-kubeconfig" {
   metadata {
     name = "kubernetes-dashboard-kubeconfig"
     namespace = "kube-system"
   }
   data {
-    kubeconfig = <<EOF
-"
-apiVersion: v1
-kind: Config
-preferences: {}
-current-context: v3-uktrade-io
-clusters:
-  - name: ${var.cluster_id}
-    cluster:
-      certificate-authority-data: ${var.cluster_ca_certificate}
-      server: https://kubernetes.default
-contexts:
-  - name: ${var.cluster_id}
-    context:
-      cluster: ${var.cluster_id}
-      user: ${var.cluster_id}
-users:
-  - name: ${var.cluster_id}
-    user:
-      token: ${data.kubernetes_secret.eks-admin-token.data["token"]}
-"
-EOF
+    kubeconfig = "${data.template_file.dashboard_kubeconfig.rendered}"
   }
 }
