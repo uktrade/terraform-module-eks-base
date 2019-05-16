@@ -195,3 +195,39 @@ resource "kubernetes_secret" "dashboard-kubeconfig" {
     kubeconfig = "${data.template_file.dashboard-kubeconfig.rendered}"
   }
 }
+
+data "template_file" "dashboard-kubeconfig-patch" {
+  template = <<EOF
+spec:
+  template:
+    spec:
+      volumes:
+      - name: kubernetes-dashboard-kubeconfig
+        secret:
+          secretName: kubernetes-dashboard-kubeconfig
+          items:
+          - key: kubeconfig
+            path: config
+            mode: 420
+      containers:
+        - env:
+          - name: KUBECONFIG
+            value: /.kube/config
+          volumeMounts:
+          - name: kubernetes-dashboard-kubeconfig
+            mountPath: /.kube
+EOF
+}
+
+resource "null_resource" "dashboard-kubeconfig-patch" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n kube-system patch deployment kubernetes-dashboard --patch
+'${data.template_file.dashboard-kubeconfig-patch.rendered}'
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
