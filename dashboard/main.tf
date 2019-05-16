@@ -210,7 +210,8 @@ spec:
             path: config
             mode: 420
       containers:
-        - env:
+        - name: kubernetes-dashboard
+          env:
           - name: KUBECONFIG
             value: /.kube/config
           volumeMounts:
@@ -222,7 +223,7 @@ EOF
 resource "null_resource" "dashboard-kubeconfig-patch" {
   provisioner "local-exec" {
     command = <<EOF
-cat <<EOL | kubectl -n kube-system patch deployment kubernetes-dashboard --patch='${data.template_file.dashboard-kubeconfig-patch.rendered}'
+cat <<EOL | kubectl -n kube-system patch deployment kubernetes-dashboard -p '${data.template_file.dashboard-kubeconfig-patch.rendered}'
 EOL
 EOF
     environment {
