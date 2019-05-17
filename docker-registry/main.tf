@@ -166,6 +166,19 @@ EOF
   }
 }
 
+resource "kubernetes_secret" "portus-secret" {
+  metadata {
+    name = "portus-config"
+    namespace = "default"
+  }
+  data {
+    PORTUS_CERT = "${tls_self_signed_cert.portus-tls-cert.cert_pem}"
+    PORTUS_KEY = "${tls_private_key.portus-tls-key.private_key_pem}"
+    PORTUS_PASSWORD = "${var.registry_config["default_password"]}"
+    PORTUS_SECRET_KEY_BASE = "${var.registry_config["secret_key_base"]}"
+  }
+}
+
 data "template_file" "portus" {
   template = "${file("${path.module}/portus-dc.yaml")}"
 }
