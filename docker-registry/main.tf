@@ -167,7 +167,7 @@ EOF
 }
 
 data "template_file" "portus" {
-  template = "${file("path.module/portus-dc.yaml")}"
+  template = "${file("${path.module}/portus-dc.yaml")}"
 }
 
 resource "null_resource" "portus" {
