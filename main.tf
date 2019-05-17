@@ -16,7 +16,7 @@ module "eks-dashboard" {
 }
 
 module "eks-registry" {
-  source = "github.com/uktrade/terraform-module-eks-base//registry"
+  source = "github.com/uktrade/terraform-module-eks-base//docker-registry"
   cluster_id = "${var.cluster_id}"
   cluster_domain = "${var.cluster_domain}"
   kubeconfig_filename = "${var.kubeconfig_filename}"
