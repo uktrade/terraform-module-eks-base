@@ -15,13 +15,13 @@ module "eks-dashboard" {
   dashboard_oauth_config = "${var.dashboard_oauth_config}"
 }
 
-# module "eks-registry" {
-#   source = "github.com/uktrade/terraform-module-eks-base//registry"
-#   cluster_id = "${var.cluster_id}"
-#   cluster_domain = "${var.cluster_domain}"
-#   kubeconfig_filename = "${var.kubeconfig_filename}"
-#   registry_oauth_config = "${var.registry_oauth_config}"
-# }
+module "eks-registry" {
+  source = "github.com/uktrade/terraform-module-eks-base//registry"
+  cluster_id = "${var.cluster_id}"
+  cluster_domain = "${var.cluster_domain}"
+  kubeconfig_filename = "${var.kubeconfig_filename}"
+  registry_config = "${var.registry_config}"
+}
 
 # module "eks-logging" {
 #   source = "github.com/uktrade/terraform-module-eks-base//logging"
