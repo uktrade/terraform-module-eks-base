@@ -41,9 +41,9 @@ configData:
         enabled: false
   auth:
     token:
-      realm: https://registry.ci.uktrade.io/console/v2/token
-      service: registry.ci.uktrade.io
-      issuer: registry.ci.uktrade.io
+      realm: https://registry.${var.cluster_domain}/console/v2/token
+      service: registry.${var.cluster_domain}
+      issuer: registry.${var.cluster_domain}
       rootcertbundle: /secrets/cert.pem
   notifications:
     endpoints:
@@ -214,6 +214,78 @@ resource "kubernetes_service" "portus" {
       protocol = "TCP"
       port = 3000
       target_port = 3000
+    }
+  }
+}
+
+data "template_file" "portus-ingress" {
+  template = <<EOF
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /console/$request_uri
+  labels:
+    app: portus
+  name: portus
+spec:
+  rules:
+  - host: registry.${var.cluster_domain}
+    http:
+      paths:
+      - backend:
+          serviceName: portus
+          servicePort: 3000
+        path: /(assets|favicon)/
+EOF
+}
+
+data "template_file" "docker-registry-ingress" {
+  template = <<EOF
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    app: portus
+  name: docker-registry
+spec:
+  rules:
+  - host: registry.${var.cluster_domain}
+    http:
+      paths:
+      - backend:
+          serviceName: docker-registry
+          servicePort: 5000
+        path: /
+      - backend:
+          serviceName: portus
+          servicePort: 3000
+        path: /console/
+EOF
+}
+
+resource "null_resource" "portus-ingress" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n default apply -f -
+${data.template_file.portus-ingress.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
+
+resource "null_resource" "docker-registry-ingress" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n default apply -f -
+${data.template_file.docker-registry-ingress.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
 }
