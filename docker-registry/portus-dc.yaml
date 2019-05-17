@@ -58,7 +58,7 @@ spec:
               name: portus-secrets
         - name: PORTUS_KEY_PATH
           value: /secrets/portus.key
-        image: opensuse/portus:2.5
+        image: opensuse/portus:${version}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
@@ -130,7 +130,7 @@ spec:
               name: portus-secrets
         - name: PORTUS_KEY_PATH
           value: /secrets/portus.key
-        image: opensuse/portus:2.5
+        image: opensuse/portus:${version}
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - mountPath: /secrets
