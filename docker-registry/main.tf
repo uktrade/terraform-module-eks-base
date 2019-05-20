@@ -10,6 +10,10 @@ s3:
   bucket: ${var.registry_config["s3_bucket"]}
   encrypt: true
   secure: true
+secrets:
+  s3:
+    accessKey: ${var.registry_config["s3_accesskey"]}
+    secretKey: ${var.registry_config["s3_secretkey"]}
 persistence:
   deleteEnabled: true
 configData:
