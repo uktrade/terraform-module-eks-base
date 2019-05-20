@@ -2,6 +2,28 @@ provider "kubernetes" {
   config_path = "${var.kubeconfig_filename}"
 }
 
+resource "tls_private_key" "portus-tls-key" {
+  algorithm = "RSA"
+  rsa_bits = 2048
+}
+
+resource "tls_self_signed_cert" "portus-tls-cert" {
+  key_algorithm = "${tls_private_key.portus-tls-key.algorithm}"
+  private_key_pem = "${tls_private_key.portus-tls-key.private_key_pem}"
+  subject {
+    common_name = "registry.${var.cluster_domain}"
+  }
+  validity_period_hours = 87600
+  allowed_uses = [
+    "digital_signature",
+    "key_encipherment",
+    "data_encipherment",
+    "server_auth",
+    "client_auth",
+    "any_extended"
+  ]
+}
+
 data "template_file" "registry-values" {
   template = <<EOF
 storage: s3
@@ -69,26 +91,38 @@ resource "helm_release" "registry" {
   values = ["${data.template_file.registry-values.rendered}"]
 }
 
-resource "tls_private_key" "portus-tls-key" {
-  algorithm = "RSA"
-  rsa_bits = 2048
+data "template_file" "registry-portus-patch" {
+  template = <<EOF
+spec:
+  template:
+    spec:
+      volumes:
+      - name: ca-bundle
+        secret:
+          secretName: portus-secrets
+          defaultMode: 420
+          items:
+          - key: PORTUS_CERT
+            path: cert.pem
+      containers:
+      - name: docker-registry
+        volumeMounts:
+        - name: ca-bundle
+          mountPath: /secrets
+          readOnly: true
+EOF
 }
 
-resource "tls_self_signed_cert" "portus-tls-cert" {
-  key_algorithm = "${tls_private_key.portus-tls-key.algorithm}"
-  private_key_pem = "${tls_private_key.portus-tls-key.private_key_pem}"
-  subject {
-    common_name = "registry.${var.cluster_domain}"
+resource "null_resource" "registry-portus-patch" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n default patch deployment docker-registry -p '${data.template_file.registry-portus-patch.rendered}'
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
   }
-  validity_period_hours = 87600
-  allowed_uses = [
-    "digital_signature",
-    "key_encipherment",
-    "data_encipherment",
-    "server_auth",
-    "client_auth",
-    "any_extended"
-  ]
 }
 
 resource "kubernetes_config_map" "portus-config" {
