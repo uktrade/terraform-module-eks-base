@@ -263,7 +263,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /console/$request_uri
+    nginx.ingress.kubernetes.io/rewrite-target: /console/$$request_uri
   labels:
     app: portus
   name: portus
