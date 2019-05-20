@@ -143,10 +143,10 @@ check_ssl_usage:
 oauth:
   github:
     enabled: true
-    client_id: "${var.registry_config["oauth_client_id"]}"
-    client_secret: "${var.registry_config["oauth_client_secret"]}"
-    organization: "${var.registry_config["oauth_organization"]}"
-    team: "${var.registry_config["oauth_team"]}"
+    client_id: ${var.registry_config["oauth_client_id"]}
+    client_secret: ${var.registry_config["oauth_client_secret"]}
+    organization: ${var.registry_config["oauth_organization"]}
+    team: ${var.registry_config["oauth_team"]}
 registry:
   jwt_expiration_time:
     value: 3600
