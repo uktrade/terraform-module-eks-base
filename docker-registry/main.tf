@@ -41,6 +41,7 @@ configData:
         enabled: true
         age: 168h
         interval: 24h
+        dryrun: false
       readonly:
         enabled: false
   auth:
