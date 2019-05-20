@@ -207,7 +207,7 @@ EOF
 
 resource "kubernetes_secret" "portus-secret" {
   metadata {
-    name = "portus-config"
+    name = "portus-secret"
     namespace = "default"
   }
   data {
