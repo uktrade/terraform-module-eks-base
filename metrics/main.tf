@@ -12,7 +12,7 @@ data "http" "prometheus-init" {
 
 resource "null_resource" "prometheus-init" {
   provisioner "local-exec" {
-    command = "kubectl apply ${data.http.prometheus-init.body}"
+    command = "kubectl apply '${data.http.prometheus-init.body}'"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
@@ -25,7 +25,7 @@ data "http" "prometheus" {
 
 resource "null_resource" "prometheus" {
   provisioner "local-exec" {
-    command = "kubectl apply ${data.http.prometheus.body}"
+    command = "kubectl apply '${data.http.prometheus.body}'"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
@@ -38,7 +38,7 @@ data "http" "grafana" {
 
 resource "null_resource" "grafana" {
   provisioner "local-exec" {
-    command = "kubectl apply ${data.http.grafana.body}"
+    command = "kubectl apply '${data.http.grafana.body}'"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
