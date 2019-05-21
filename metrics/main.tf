@@ -122,7 +122,7 @@ metadata:
   name: prometheus
   namespace: monitoring
   labels:
-    operated-prometheus: true
+    k8s-app: prometheus-operator
 spec:
   rules:
   - host: status.${var.cluster_domain}
