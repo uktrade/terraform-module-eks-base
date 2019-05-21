@@ -220,34 +220,3 @@ EOF
     }
   }
 }
-
-data "template_file" "kublet-metrics" {
-  template = <<EOF
-spec:
-  ports:
-  - name: https-metrics
-    protocol: TCP
-    port: 10250
-    targetPort: 10250
-  - name: http-metrics
-    protocol: TCP
-    port: 10255
-    targetPort: 10255
-  - name: cadvisor
-    protocol: TCP
-    port: 4194
-    targetPort: 4194
-EOF
-}
-
-resource "null_resource" "kublet-metrics" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl patch -n kube-system service kubelet -p '${data.template_file.kublet-metrics.rendered}'
-EOL
-EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
-  }
-}
