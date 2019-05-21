@@ -223,7 +223,7 @@ EOF
 
 resource "kubernetes_service" "kubelet-metrics" {
   metadata {
-    name = "kubelet"
+    name = "kubelet-metrics"
     namespace = "kube-system"
     labels {
       k8s-app = "kubelet"
