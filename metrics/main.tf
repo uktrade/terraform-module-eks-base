@@ -23,7 +23,7 @@ data "http" "prometheus" {
   url = "${local.metrics_url}/prometheus.yaml"
 }
 
-resource "null_resource" "prometheus-init" {
+resource "null_resource" "prometheus" {
   provisioner "local-exec" {
     command = "kubectl apply ${data.http.prometheus.body}"
     environment {
