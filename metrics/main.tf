@@ -114,9 +114,100 @@ resource "null_resource" "prometheus" {
   }
 }
 
+data "template-file" "prometheus-ingress" {
+  template = <<EOF
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    operated-prometheus: true
+spec:
+  rules:
+  - host: status.${var.cluster_domain}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: prometheus-operated
+          servicePort: 9090
+EOF
+}
+
+resource "null_resource" "prometheus-ingress" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n monitoring apply -f -
+${data.template_file.prometheus-ingress.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
+
 resource "null_resource" "grafana" {
   provisioner "local-exec" {
     command = "kubectl apply -f ${local.metrics_url}/grafana-bundle.yaml"
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
+
+data "template_file" "grafana-patch" {
+  template = <<EOF
+spec:
+  template:
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:6.1.6
+EOF
+}
+
+resource "null_resource" "grafana-patch" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl patch -n monitoring deployment grafana -p '${data.template_file.grafana-patch.rendered}'
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
+
+data "template-file" "grafana-ingress" {
+  template = <<EOF
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+spec:
+  rules:
+  - host: metrics.${var.cluster_domain}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: grafana
+          servicePort: 3000
+EOF
+}
+
+resource "null_resource" "grafana-ingress" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n monitoring apply -f -
+${data.template_file.grafana-ingress.rendered}
+EOL
+EOF
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
