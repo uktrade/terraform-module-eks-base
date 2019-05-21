@@ -236,5 +236,10 @@ resource "kubernetes_service" "kubelet-metrics" {
       port = 10250
       target_port = 10250
     }
+    port {
+      name = "http-metrics"
+      port = 10255
+      target_port = 10255
+    }
   }
 }
