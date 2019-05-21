@@ -19,6 +19,18 @@ data "template_file" "prometheus-patch_1" {
   template = <<EOF
 rules:
 - apiGroups:
+  - extensions
+  resources:
+  - thirdpartyresources
+  verbs:
+  - "*"
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - "*"
+- apiGroups:
   - monitoring.coreos.com
   resources:
   - alertmanagers
@@ -27,6 +39,34 @@ rules:
   - prometheusrules
   verbs:
   - "*"
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs: ["*"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  - secrets
+  verbs: ["*"]
+- apiGroups: [""]
+  resources:
+  - pods
+  verbs: ["list", "delete"]
+- apiGroups: [""]
+  resources:
+  - services
+  - endpoints
+  verbs: ["get", "create", "update"]
+- apiGroups: [""]
+  resources:
+  - nodes
+  verbs: ["list", "watch"]
+- apiGroups: [""]
+  resources:
+  - namespaces
+  verbs: ["list"]
+
 EOF
 }
 
