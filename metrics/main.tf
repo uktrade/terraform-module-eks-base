@@ -52,7 +52,7 @@ rules:
 - apiGroups: [""]
   resources:
   - pods
-  verbs: ["list", "delete"]
+  verbs: ["list", "delete", "watch"]
 - apiGroups: [""]
   resources:
   - services
