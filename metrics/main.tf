@@ -69,11 +69,11 @@ rules:
 - apiGroups: [""]
   resources:
   - services
-  verbs: ["list"]
+  verbs: ["list", "get", "watch"]
 - apiGroups: [""]
   resources:
   - endpoints
-  verbs: ["list"]
+  verbs: ["list", "get", "watch"]
 EOF
 }
 
@@ -217,6 +217,24 @@ EOL
 EOF
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
+
+resource "kubernetes_service" "kubelet-metrics" {
+  metadata {
+    name = "kubelet"
+    namespace = "kube-system"
+    labels {
+      k8s-app = "kubelet"
+    }
+  }
+  spec {
+    type = "ClusterIP"
+    port {
+      name = "https-metrics"
+      port = 10250
+      target_port = 10250
     }
   }
 }
