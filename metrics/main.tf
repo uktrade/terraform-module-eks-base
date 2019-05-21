@@ -114,7 +114,7 @@ resource "null_resource" "prometheus" {
   }
 }
 
-data "template-file" "prometheus-ingress" {
+data "template_file" "prometheus-ingress" {
   template = <<EOF
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -180,7 +180,7 @@ EOF
   }
 }
 
-data "template-file" "grafana-ingress" {
+data "template_file" "grafana-ingress" {
   template = <<EOF
 apiVersion: extensions/v1beta1
 kind: Ingress
