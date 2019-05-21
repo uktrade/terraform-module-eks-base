@@ -23,6 +23,14 @@ module "eks-registry" {
   registry_config = "${var.registry_config}"
 }
 
+module "eks-metrics" {
+  source = "github.com/uktrade/terraform-module-eks-base//metrics"
+  cluster_id = "${var.cluster_id}"
+  cluster_domain = "${var.cluster_domain}"
+  kubeconfig_filename = "${var.kubeconfig_filename}"
+}
+
+
 # module "eks-logging" {
 #   source = "github.com/uktrade/terraform-module-eks-base//logging"
 #   cluster_id = "${var.cluster_id}"
