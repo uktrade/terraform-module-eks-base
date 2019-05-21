@@ -66,7 +66,14 @@ rules:
   resources:
   - namespaces
   verbs: ["list"]
-
+- apiGroups: [""]
+  resources:
+  - services
+  verbs: ["list"]
+- apiGroups: [""]
+  resources:
+  - endpoints
+  verbs: ["list"]
 EOF
 }
 
