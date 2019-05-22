@@ -249,3 +249,63 @@ resource "kubernetes_service" "kubelet-metrics" {
     }
   }
 }
+
+data "template_file" "prometheus-patch" {
+  template = <<EOF
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: exporter-kubelets
+  name: exporter-kubelets
+spec:
+  jobLabel: component
+  selector:
+    matchLabels:
+      k8s-app: kubelet
+  namespaceSelector:
+    matchNames:
+      - "kube-system"
+  endpoints:
+    - port: https-metrics
+      scheme: https
+      interval: 15s
+      tlsConfig:
+        caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      relabelings:
+        - targetLabel: "__address__"
+          replacement: "kubernetes.default.svc:443"
+        - sourceLabels: ["__meta_kubernetes_endpoint_address_target_name"]
+          regex: "(.+)"
+          targetLabel: "__metrics_path__"
+          replacement: "/api/v1/nodes/$${1}/proxy/metrics"
+    - port: https-metrics
+      scheme: https
+      interval: 15s
+      honorLabels: true
+      tlsConfig:
+        caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      relabelings:
+        - targetLabel: "__address__"
+          replacement: "kubernetes.default.svc:443"
+        - sourceLabels: ["__meta_kubernetes_endpoint_address_target_name"]
+          regex: "(.+)"
+          targetLabel: "__metrics_path__"
+          replacement: "/api/v1/nodes/$${1}/proxy/metrics/cadvisor"
+EOF
+}
+
+resource "null_resource" "prometheus-patch" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n monitoring apply -f -
+${data.template_file.prometheus-patch.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
