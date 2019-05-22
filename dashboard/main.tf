@@ -2,12 +2,22 @@ provider "kubernetes" {
   config_path = "${var.kubeconfig_filename}"
 }
 
+data "template_file" "heapster-values" {
+  template = <<EOF
+command:
+  - /heapster
+  - --source=kubernetes:https://kubernetes.default
+  - --sink=influxdb:http://monitoring-influxdb.kube-system.svc:8086
+EOF
+}
+
 resource "helm_release" "heapster" {
   name = "heapster"
   namespace = "kube-system"
   repository = "stable"
   chart = "heapster"
   version = "0.3.3"
+  values = ["${data.template_file.heapster-values.rendered}"]
 }
 
 data "template_file" "oauth-proxy-values" {

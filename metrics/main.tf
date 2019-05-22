@@ -3,12 +3,21 @@ provider "kubernetes" {
 }
 
 locals {
-  metrics_url = "https://raw.githubusercontent.com/aws-samples/aws-workshop-for-kubernetes/master/02-path-working-with-clusters/201-cluster-monitoring/templates/prometheus"
+  metrics_url = "https://raw.githubusercontent.com/aws-samples/aws-workshop-for-kubernetes/master/02-path-working-with-clusters/201-cluster-monitoring/templates"
+}
+
+resource "null_resource" "influxdb" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f ${local.metrics_url}/heapster/influxdb.yaml"
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
 }
 
 resource "null_resource" "prometheus-init" {
   provisioner "local-exec" {
-    command = "kubectl apply -f ${local.metrics_url}/prometheus-bundle.yaml"
+    command = "kubectl apply -f ${local.metrics_url}/prometheus/prometheus-bundle.yaml"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
@@ -114,7 +123,7 @@ EOF
 
 resource "null_resource" "prometheus" {
   provisioner "local-exec" {
-    command = "kubectl apply -f ${local.metrics_url}/prometheus.yaml"
+    command = "kubectl apply -f ${local.metrics_url}/prometheus/prometheus.yaml"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
@@ -157,7 +166,7 @@ EOF
 
 resource "null_resource" "grafana" {
   provisioner "local-exec" {
-    command = "kubectl apply -f ${local.metrics_url}/grafana-bundle.yaml"
+    command = "kubectl apply -f ${local.metrics_url}/prometheus/grafana-bundle.yaml"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
@@ -217,6 +226,34 @@ EOL
 EOF
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
+
+resource "kubernetes_service" "kubelet-metrics" {
+  metadata {
+    name = "kubelet-metrics"
+    namespace = "kube-system"
+    labels {
+      k8s-app = "kubelet"
+    }
+    spec {
+      type = "ClusterIP"
+      port {
+        name = "https-metrics"
+        port = 10250
+        target_port = 10250
+      }
+      port {
+        name = "http-metrics"
+        port = 10255
+        target_port = 10255
+      }
+      port {
+        name = "cadvisor"
+        port = 4194
+        target_port = 4194
+      }
     }
   }
 }
