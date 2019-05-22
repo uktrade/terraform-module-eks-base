@@ -2,12 +2,20 @@ provider "kubernetes" {
   config_path = "${var.kubeconfig_filename}"
 }
 
+data "template_file" "metrics-server-values" {
+  template = <<EOF
+hostNetwork:
+  enabled: true
+EOF
+}
+
 resource "helm_release" "metrics-server" {
   name = "metrics-server"
   namespace = "kube-system"
   repository = "stable"
   chart = "metrics-server"
   version = "2.8.0"
+  values = ["${data.template_file.metrics-server-values.rendered}"]
 }
 
 data "template_file" "oauth-proxy-values" {
