@@ -231,6 +231,7 @@ resource "kubernetes_service" "kubelet-metrics" {
   }
   spec {
     type = "ClusterIP"
+    cluster_ip = "None"
     port {
       name = "https-metrics"
       port = 10250
