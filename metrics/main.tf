@@ -6,15 +6,6 @@ locals {
   metrics_url = "https://raw.githubusercontent.com/aws-samples/aws-workshop-for-kubernetes/master/02-path-working-with-clusters/201-cluster-monitoring/templates"
 }
 
-resource "null_resource" "influxdb" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f ${local.metrics_url}/heapster/influxdb.yaml"
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
-  }
-}
-
 resource "null_resource" "prometheus-init" {
   provisioner "local-exec" {
     command = "kubectl apply -f ${local.metrics_url}/prometheus/prometheus-bundle.yaml"
