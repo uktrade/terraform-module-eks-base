@@ -4,8 +4,8 @@ provider "kubernetes" {
 
 data "template_file" "metrics-server-values" {
   template = <<EOF
-hostNetwork:
-  enabled: true
+args:
+  - --kubelet-preferred-address-types=InternalIP
 EOF
 }
 
