@@ -237,23 +237,23 @@ resource "kubernetes_service" "kubelet-metrics" {
     labels {
       k8s-app = "kubelet"
     }
-    spec {
-      type = "ClusterIP"
-      port {
-        name = "https-metrics"
-        port = 10250
-        target_port = 10250
-      }
-      port {
-        name = "http-metrics"
-        port = 10255
-        target_port = 10255
-      }
-      port {
-        name = "cadvisor"
-        port = 4194
-        target_port = 4194
-      }
+  }
+  spec {
+    type = "ClusterIP"
+    port {
+      name = "https-metrics"
+      port = 10250
+      target_port = 10250
+    }
+    port {
+      name = "http-metrics"
+      port = 10255
+      target_port = 10255
+    }
+    port {
+      name = "cadvisor"
+      port = 4194
+      target_port = 4194
     }
   }
 }
