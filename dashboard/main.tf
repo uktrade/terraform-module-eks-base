@@ -6,7 +6,6 @@ data "template_file" "metrics-server-values" {
   template = <<EOF
 args:
   - --kubelet-preferred-address-types=InternalIP
-  - --source=kubernetes.summary_api:https://kubernetes.default?kubeletHttps=true&kubeletPort=10250&insecure=true
 EOF
 }
 
