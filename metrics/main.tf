@@ -218,21 +218,41 @@ EOF
   }
 }
 
-data "template_file" "kube-state-metrics" {
-  template = <<EOF
-prometheus:
-  monitor:
-    enabled: true
-    additionalLabels:
-      k8s-app: kube-state-metrics
-EOF
-}
-
 resource "helm_release" "kube-state-metrics" {
   name = "kube-state-metrics"
   namespace = "monitoring"
   repository = "stable"
   chart = "kube-state-metrics"
   version = "1.6.2"
-  values = ["${data.template_file.kube-state-metrics.rendered}"]
+}
+
+data "template_file" "kube-state-metrics-monitor" {
+  template = <<EOF
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kube-state-metrics
+  labels:
+    name: kube-state-metrics
+    labels:
+      app: kube-state-metrics
+spec:
+  selector:
+    matchLabels:
+      app: kube-state-metrics
+  endpoints:
+    - port: http
+EOF
+}
+
+resource "null_resource" "kube-state-metrics-monitor" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n monitoring apply -f '${data.template_file.kube-state-metrics-monitor.rendered}'
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
 }
