@@ -31,9 +31,10 @@ module "eks-metrics" {
 }
 
 
-# module "eks-logging" {
-#   source = "github.com/uktrade/terraform-module-eks-base//logging"
-#   cluster_id = "${var.cluster_id}"
-#   cluster_domain = "${var.cluster_domain}"
-#   kubeconfig_filename = "${var.kubeconfig_filename}"
-# }
+module "eks-logging" {
+  source = "github.com/uktrade/terraform-module-eks-base//logging"
+  cluster_id = "${var.cluster_id}"
+  cluster_domain = "${var.cluster_domain}"
+  kubeconfig_filename = "${var.kubeconfig_filename}"
+  logging_config = "${var.logging_config}"
+}

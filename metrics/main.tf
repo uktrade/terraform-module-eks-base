@@ -117,7 +117,7 @@ metadata:
     k8s-app: prometheus-operator
   annotations:
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      rewrite ^/$ /targets;
+      rewrite ^/$ /targets last;
 spec:
   rules:
   - host: status.${var.cluster_domain}
