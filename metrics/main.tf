@@ -231,17 +231,21 @@ data "template_file" "kube-state-metrics-monitor" {
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: kube-state-metrics
   labels:
-    name: kube-state-metrics
-    labels:
-      app: kube-state-metrics
+    app: kube-state-metrics
+    k8s-app: kube-state-metrics
+  name: kube-state-metrics
+  namespace: monitoring
 spec:
+  endpoints:
+  - port: http
+  jobLabel: k8s-app
+  namespaceSelector:
+    matchNames:
+    - monitoring
   selector:
     matchLabels:
       app: kube-state-metrics
-  endpoints:
-    - port: http
 EOF
 }
 
