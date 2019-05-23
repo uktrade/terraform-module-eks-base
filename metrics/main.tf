@@ -115,6 +115,8 @@ metadata:
   namespace: monitoring
   labels:
     k8s-app: prometheus-operator
+  annotations:
+    nginx.ingress.kubernetes.io/temporal-redirect: https://status.${var.cluster_domain}/targets
 spec:
   rules:
   - host: status.${var.cluster_domain}
