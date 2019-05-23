@@ -25,5 +25,5 @@ resource "helm_release" "fluentd" {
   repository = "incubator"
   chart = "fluentd-cloudwatch"
   version = "0.9.1"
-  values = ["${data.template_file.registry-values.rendered}"]
+  values = ["${data.template_file.fluentd.rendered}"]
 }
