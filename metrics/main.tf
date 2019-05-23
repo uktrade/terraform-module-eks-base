@@ -223,6 +223,7 @@ data "template_file" "kube-state-metrics" {
 prometheus:
   monitor:
     enabled: true
+    additionalLabels: null
 EOF
 }
 
