@@ -206,31 +206,19 @@ EOF
   }
 }
 
-resource "kubernetes_service" "kubelet-metrics" {
-  metadata {
-    name = "kubelet-metrics"
-    namespace = "kube-system"
-    labels {
-      k8s-app = "kubelet"
-    }
-  }
-  spec {
-    type = "ClusterIP"
-    cluster_ip = "None"
-    port {
-      name = "https-metrics"
-      port = 10250
-      target_port = 10250
-    }
-    port {
-      name = "http-metrics"
-      port = 10255
-      target_port = 10255
-    }
-    port {
-      name = "cadvisor"
-      port = 4194
-      target_port = 4194
-    }
-  }
+data "template_file" "kube-state-metrics" {
+  template = <<EOF
+prometheus:
+  monitor:
+    enabled: true
+EOF
+}
+
+resource "helm_release" "kube-state-metrics" {
+  name = "kube-state-metrics"
+  namespace = "monitoring"
+  repository = "stable"
+  chart = "kube-state-metrics"
+  version = "1.6.2"
+  values = ["${data.template_file.kube-state-metrics.rendered}"]
 }
