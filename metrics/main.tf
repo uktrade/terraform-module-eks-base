@@ -206,6 +206,18 @@ EOF
   }
 }
 
+resource "null_resource" "kube-state-metrics-patch" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n monitoring delete ServiceAccount/kube-state-metrics ClusterRoleBinding/kube-state-metrics Deployment/kube-state-metrics Service/kube-state-metrics ServiceMonitor/kube-state-metrics'
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+}
+
 data "template_file" "kube-state-metrics" {
   template = <<EOF
 prometheus:
