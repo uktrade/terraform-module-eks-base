@@ -249,14 +249,14 @@ spec:
 EOF
 }
 
-resource "null_resource" "kube-state-metrics-monitor" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n monitoring apply -f '${data.template_file.kube-state-metrics-monitor.rendered}'
-EOL
-EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
-  }
-}
+# resource "null_resource" "kube-state-metrics-monitor" {
+#   provisioner "local-exec" {
+#     command = <<EOF
+# cat <<EOL | kubectl -n monitoring apply -f '${data.template_file.kube-state-metrics-monitor.rendered}'
+# EOL
+# EOF
+#     environment {
+#       KUBECONFIG = "${var.kubeconfig_filename}"
+#     }
+#   }
+# }
