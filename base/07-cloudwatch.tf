@@ -2,26 +2,18 @@ locals {
   cloudwatch_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/kubernetes-monitoring"
 }
 
-data "http" "cloudwatch-ns" {
-  url = "${local.cloudwatch_url}/cloudwatch-namespace.yaml"
-}
-
 resource "null_resource" "cloudwatch-ns" {
   provisioner "local-exec" {
-    command = "kubectl apply ${data.http.cloudwatch-ns.body}"
+    command = "kubectl apply -f ${local.cloudwatch_url}/cloudwatch-namespace.yaml"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
 }
 
-data "http" "cloudwatch-config" {
-  url = "${local.cloudwatch_url}/cwagent-configmap.yaml"
-}
-
 resource "null_resource" "cloudwatch-config" {
   provisioner "local-exec" {
-    command = "kubectl apply ${data.http.cloudwatch-config.body}"
+    command = "kubectl apply -f ${local.cloudwatch_url}/cwagent-configmap.yaml"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
@@ -58,13 +50,9 @@ EOF
   }
 }
 
-data "http" "cloudwatch-daemonset" {
-  url = "${local.cloudwatch_url}/cwagent-daemonset.yaml"
-}
-
 resource "null_resource" "cloudwatch-daemonset" {
   provisioner "local-exec" {
-    command = "kubectl apply ${data.http.cloudwatch-daemonset.body}"
+    command = "kubectl apply -f ${local.cloudwatch_url}/cwagent-daemonset.yaml"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
