@@ -18,6 +18,7 @@ resource "null_resource" "cloudwatch-config" {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  depends_on = ["null_resource.cloudwatch-ns"]
 }
 
 data "template_file" "cloudwatch-config-patch" {
@@ -48,6 +49,7 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  depends_on = ["null_resource.cloudwatch-ns"]
 }
 
 resource "null_resource" "cloudwatch-daemonset" {
@@ -57,4 +59,5 @@ resource "null_resource" "cloudwatch-daemonset" {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  depends_on = ["null_resource.cloudwatch-ns"]
 }
