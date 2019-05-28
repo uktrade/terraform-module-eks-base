@@ -1,6 +1,7 @@
 locals {
   cloudwatch_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/kubernetes-monitoring"
   fluentd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/fluentd/fluentd.yml"
+  statsd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/statsd"
 }
 
 resource "null_resource" "cloudwatch-ns" {
@@ -66,6 +67,39 @@ resource "null_resource" "cloudwatch-daemonset" {
 resource "null_resource" "cloudwatch-fluentd" {
   provisioner "local-exec" {
     command = "kubectl apply -f ${local.fluentd_url}"
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  depends_on = ["null_resource.cloudwatch-ns"]
+}
+
+data "aws_region" "current" {}
+
+resource "kubernetes_config_map" "cloudwatch-fluentd" {
+  metadata {
+    name = "cluster-info"
+    namespace = "amazon-cloudwatch"
+  }
+  data {
+    cluster.name = "${var.cluster_id}"
+    logs.region = "${data.aws_region.current.name}"
+  }
+}
+
+resource "null_resource" "cloudwatch-statsd-config" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f ${local.statsd_url}/cwagent-statsd-configmap.yaml"
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  depends_on = ["null_resource.cloudwatch-ns"]
+}
+
+resource "null_resource" "cloudwatch-statsd-daemonset" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f ${local.statsd_url}/cwagent-statsd-daemonset.yaml"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
