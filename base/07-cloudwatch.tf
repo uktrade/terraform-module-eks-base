@@ -28,21 +28,21 @@ resource "null_resource" "cloudwatch-config" {
   }
 }
 
-template "template_file" "cloudwatch-config-patch" {
+data "template_file" "cloudwatch-config-patch" {
   template = <<EOF
 data:
   cwagentconfig.json: |
-  {
-    "structuredlogs": {
-      "metrics_collected": {
-        "kubernetes": {
-          "cluster_name": "${var.cluster_id}",
-          "metrics_collection_interval": 60
-        }
-      },
-      "force_flush_interval": 5
+    {
+      "structuredlogs": {
+        "metrics_collected": {
+          "kubernetes": {
+            "cluster_name": "${var.cluster_id}",
+            "metrics_collection_interval": 60
+          }
+        },
+        "force_flush_interval": 5
+      }
     }
-  }
 EOF
 }
 
