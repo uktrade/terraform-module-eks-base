@@ -15,3 +15,8 @@ resource "aws_iam_role_policy" "eks-node-eip" {
 }
 EOF
 }
+
+resource "aws_iam_role_policy_attachment" "cloudwatch-eks" {
+  role = "${var.worker_iam_role_name}"
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
