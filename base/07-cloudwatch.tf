@@ -1,5 +1,6 @@
 locals {
   cloudwatch_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/kubernetes-monitoring"
+  fluentd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/fluentd/fluentd.yml"
 }
 
 resource "null_resource" "cloudwatch-ns" {
@@ -55,6 +56,16 @@ EOF
 resource "null_resource" "cloudwatch-daemonset" {
   provisioner "local-exec" {
     command = "kubectl apply -f ${local.cloudwatch_url}/cwagent-daemonset.yaml"
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  depends_on = ["null_resource.cloudwatch-ns"]
+}
+
+resource "null_resource" "cloudwatch-fluentd" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f ${local.fluentd_url}"
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
