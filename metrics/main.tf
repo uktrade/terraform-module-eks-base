@@ -226,7 +226,7 @@ resource "helm_release" "kube-state-metrics" {
   namespace = "monitoring"
   repository = "stable"
   chart = "kube-state-metrics"
-  version = "1.6.2"
+  version = "1.6.3"
 }
 
 data "template_file" "kube-state-metrics-monitor" {

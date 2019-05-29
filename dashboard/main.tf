@@ -40,7 +40,7 @@ resource "helm_release" "oauth-proxy" {
   namespace = "kube-system"
   repository = "stable"
   chart = "oauth2-proxy"
-  version = "0.12.1"
+  version = "0.12.2"
   values = ["${data.template_file.oauth-proxy-values.rendered}"]
 }
 
@@ -69,7 +69,7 @@ resource "helm_release" "dashboard" {
   namespace = "kube-system"
   repository = "stable"
   chart = "kubernetes-dashboard"
-  version = "1.5.1"
+  version = "1.5.2"
   values = ["${data.template_file.dashboard-values.rendered}"]
 }
 
