@@ -74,8 +74,6 @@ resource "null_resource" "cloudwatch-fluentd" {
   depends_on = ["null_resource.cloudwatch-ns"]
 }
 
-data "aws_region" "current" {}
-
 resource "kubernetes_config_map" "cloudwatch-fluentd" {
   metadata {
     name = "cluster-info"

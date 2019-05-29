@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 variable "cluster_id" {
   default = ""
 }
