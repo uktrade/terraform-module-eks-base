@@ -4,6 +4,7 @@ cloudProvider: aws
 awsRegion: ${data.aws_region.current.name}
 autoDiscovery:
   clusterName: ${var.cluster_id}
+sslCertHostPath: /etc/ssl/certs/ca-bundle.crt
 rbac:
   create: true
 serviceMonitor:
