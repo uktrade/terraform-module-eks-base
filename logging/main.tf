@@ -24,6 +24,5 @@ resource "helm_release" "fluentd" {
   namespace = "logging"
   repository = "incubator"
   chart = "fluentd-cloudwatch"
-  version = "0.10.0"
   values = ["${data.template_file.fluentd.rendered}"]
 }

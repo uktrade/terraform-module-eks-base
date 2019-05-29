@@ -85,6 +85,5 @@ resource "helm_release" "nginx-ingress" {
   namespace = "kube-system"
   repository = "${data.helm_repository.stable.metadata.0.name}"
   chart = "nginx-ingress"
-  version = "1.6.15"
   values = ["${data.template_file.nginx-ingress-values.rendered}"]
 }

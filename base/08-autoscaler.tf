@@ -17,6 +17,5 @@ resource "helm_release" "autoscaler" {
   namespace = "kube-system"
   repository = "stable"
   chart = "cluster-autoscaler"
-  version = "0.13.2"
   values = ["${data.template_file.autoscaler.rendered}"]
 }

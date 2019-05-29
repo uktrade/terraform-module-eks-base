@@ -87,7 +87,6 @@ resource "helm_release" "registry" {
   namespace = "default"
   repository = "stable"
   chart = "docker-registry"
-  version = "1.8.0"
   values = ["${data.template_file.registry-values.rendered}"]
 }
 

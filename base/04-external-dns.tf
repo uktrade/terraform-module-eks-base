@@ -56,6 +56,5 @@ resource "helm_release" "external-dns" {
   namespace = "kube-system"
   repository = "stable"
   chart = "external-dns"
-  version = "1.7.8"
   values = ["${data.template_file.external-dns-values.rendered}"]
 }
