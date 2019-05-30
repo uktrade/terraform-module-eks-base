@@ -92,6 +92,9 @@ spec:
       containers:
       - name: prometheus-operator
         image: quay.io/coreos/prometheus-operator:v0.30.0
+        args:
+        - --kubelet-service=kube-system/kubelet
+        - --config-reloader-image=quay.io/coreos/configmap-reload:v0.0.1
 EOF
 }
 
@@ -121,6 +124,35 @@ resource "null_resource" "prometheus" {
   triggers {
     build_number = "${timestamp()}"
   }
+}
+
+data "template_file" "prometheus-patch" {
+  template = <<EOF
+spec:
+  template:
+    spec:
+      containers:
+      - name: prometheus
+        image: quay.io/prometheus/prometheus:v2.10.0
+      - name: prometheus-config-reloader
+        image: quay.io/coreos/prometheus-config-reloader:v0.30.0
+EOF
+}
+
+resource "null_resource" "prometheus-patch" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl patch -n monitoring statefulset prometheus -p '${data.template_file.prometheus-patch.rendered}'
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  triggers {
+    build_number = "${timestamp()}"
+  }
+  depends_on = ["null_resource.prometheus"]
 }
 
 data "template_file" "prometheus-ingress" {
@@ -261,4 +293,58 @@ resource "helm_release" "kube-state-metrics" {
   repository = "stable"
   chart = "kube-state-metrics"
   depends_on = ["null_resource.kube-state-metrics-patch"]
+}
+
+data "template_file" "node-exporter-patch" {
+  template = <<EOF
+spec:
+  template:
+    spec:
+      containers:
+      - name: node-exporter
+        image: quay.io/prometheus/node-exporter:v0.18.0
+EOF
+}
+
+resource "null_resource" "node-exporter-patch" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl patch -n monitoring daemonset node-exporter -p '${data.template_file.node-exporter-patch.rendered}'
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  triggers {
+    build_number = "${timestamp()}"
+  }
+  depends_on = ["null_resource.prometheus"]
+}
+
+data "template_file" "alertmanager-patch" {
+  template = <<EOF
+spec:
+  template:
+    spec:
+      containers:
+      - name: alertmanager
+        image: quay.io/prometheus/alertmanager:v0.17.0
+EOF
+}
+
+resource "null_resource" "alertmanager-patch" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl patch -n monitoring statefulset alertmanager-main -p '${data.template_file.alertmanager-patch.rendered}'
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  triggers {
+    build_number = "${timestamp()}"
+  }
+  depends_on = ["null_resource.prometheus"]
 }
