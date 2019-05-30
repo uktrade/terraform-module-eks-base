@@ -345,3 +345,42 @@ EOF
   }
   depends_on = ["null_resource.prometheus"]
 }
+
+data "template_file" "servicemonitor-kubelet-patch" {
+  template = <<EOF
+spec:
+  endpoints:
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    interval: 30s
+    port: https-metrics
+    scheme: https
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  - honorLabels: true
+    interval: 30s
+    port: cadvisor
+  jobLabel: k8s-app
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  selector:
+    matchLabels:
+      k8s-app: kubelet
+EOF
+}
+
+resource "null_resource" "servicemonitor-kubelet-patch" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl patch -n monitoring servicemonitor kubelet -p '${data.template_file.servicemonitor-kubelet-patch.rendered}'
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  triggers {
+    build_number = "${timestamp()}"
+  }
+  depends_on = ["null_resource.prometheus"]
+}
