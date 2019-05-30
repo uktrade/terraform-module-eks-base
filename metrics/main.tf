@@ -13,6 +13,9 @@ resource "null_resource" "prometheus-init" {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 data "template_file" "prometheus-patch_1" {
@@ -95,6 +98,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 resource "null_resource" "prometheus" {
@@ -103,6 +109,9 @@ resource "null_resource" "prometheus" {
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
+  }
+  triggers {
+    build_number = "${timestamp()}"
   }
 }
 
@@ -141,6 +150,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 resource "null_resource" "grafana" {
@@ -149,6 +161,9 @@ resource "null_resource" "grafana" {
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
+  }
+  triggers {
+    build_number = "${timestamp()}"
   }
 }
 
@@ -172,6 +187,9 @@ EOF
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
+  }
+  triggers {
+    build_number = "${timestamp()}"
   }
 }
 
@@ -207,6 +225,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 resource "null_resource" "kube-state-metrics-patch" {
@@ -219,6 +240,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 resource "helm_release" "kube-state-metrics" {
@@ -227,38 +251,3 @@ resource "helm_release" "kube-state-metrics" {
   repository = "stable"
   chart = "kube-state-metrics"
 }
-
-data "template_file" "kube-state-metrics-monitor" {
-  template = <<EOF
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  labels:
-    app: kube-state-metrics
-    k8s-app: kube-state-metrics
-  name: kube-state-metrics
-  namespace: monitoring
-spec:
-  endpoints:
-  - port: http
-  jobLabel: k8s-app
-  namespaceSelector:
-    matchNames:
-    - monitoring
-  selector:
-    matchLabels:
-      app: kube-state-metrics
-EOF
-}
-
-# resource "null_resource" "kube-state-metrics-monitor" {
-#   provisioner "local-exec" {
-#     command = <<EOF
-# cat <<EOL | kubectl -n monitoring apply -f '${data.template_file.kube-state-metrics-monitor.rendered}'
-# EOL
-# EOF
-#     environment {
-#       KUBECONFIG = "${var.kubeconfig_filename}"
-#     }
-#   }
-# }

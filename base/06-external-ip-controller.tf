@@ -86,4 +86,7 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }

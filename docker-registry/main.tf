@@ -122,6 +122,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 resource "kubernetes_config_map" "portus-config" {
@@ -235,6 +238,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 resource "kubernetes_service" "portus" {
@@ -313,6 +319,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 resource "null_resource" "docker-registry-ingress" {
@@ -325,5 +334,8 @@ EOF
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
+  }
+  triggers {
+    build_number = "${timestamp()}"
   }
 }

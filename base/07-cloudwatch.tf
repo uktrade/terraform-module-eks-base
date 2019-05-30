@@ -11,6 +11,9 @@ resource "null_resource" "cloudwatch-ns" {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 resource "null_resource" "cloudwatch-config" {
@@ -19,6 +22,9 @@ resource "null_resource" "cloudwatch-config" {
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
+  }
+  triggers {
+    build_number = "${timestamp()}"
   }
   depends_on = ["null_resource.cloudwatch-ns"]
 }
@@ -51,6 +57,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
   depends_on = ["null_resource.cloudwatch-ns"]
 }
 
@@ -61,6 +70,9 @@ resource "null_resource" "cloudwatch-daemonset" {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
   depends_on = ["null_resource.cloudwatch-ns"]
 }
 
@@ -70,6 +82,9 @@ resource "null_resource" "cloudwatch-fluentd" {
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
+  }
+  triggers {
+    build_number = "${timestamp()}"
   }
   depends_on = ["null_resource.cloudwatch-ns"]
 }
@@ -92,6 +107,9 @@ resource "null_resource" "cloudwatch-statsd-config" {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
   depends_on = ["null_resource.cloudwatch-ns"]
 }
 
@@ -101,6 +119,9 @@ resource "null_resource" "cloudwatch-statsd-daemonset" {
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
+  }
+  triggers {
+    build_number = "${timestamp()}"
   }
   depends_on = ["null_resource.cloudwatch-ns"]
 }

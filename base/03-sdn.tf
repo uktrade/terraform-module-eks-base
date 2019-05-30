@@ -14,6 +14,9 @@ resource "null_resource" "k8s-cni" {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 data "http" "k8s-calico" {
@@ -27,6 +30,9 @@ resource "null_resource" "k8s-calico" {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 data "http" "k8s-calico-metrics" {
@@ -39,5 +45,8 @@ resource "null_resource" "k8s-calico-metrics" {
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
+  }
+  triggers {
+    build_number = "${timestamp()}"
   }
 }

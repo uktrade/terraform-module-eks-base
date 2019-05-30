@@ -33,6 +33,9 @@ resource "null_resource" "helm_init" {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
   depends_on = ["kubernetes_cluster_role_binding.tiller"]
 }
 
@@ -53,4 +56,17 @@ data "helm_repository" "stable" {
 data "helm_repository" "incubator" {
     name = "incubator"
     url = "https://kubernetes-charts-incubator.storage.googleapis.com"
+}
+
+resource "null_resource" "helm_update" {
+  provisioner "local-exec" {
+    command = "helm repo update"
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  triggers {
+    build_number = "${timestamp()}"
+  }
+  depends_on = ["kubernetes_cluster_role_binding.tiller"]
 }

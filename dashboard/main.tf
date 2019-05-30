@@ -100,6 +100,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 resource "kubernetes_service_account" "eks-admin" {
@@ -225,5 +228,8 @@ EOF
     environment {
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
+  }
+  triggers {
+    build_number = "${timestamp()}"
   }
 }
