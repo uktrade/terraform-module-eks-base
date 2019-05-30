@@ -78,6 +78,7 @@ EOF
   triggers {
     build_number = "${timestamp()}"
   }
+  depends_on = ["null_resource.prometheus-init"]
 }
 
 data "template_file" "prometheus-patch_2" {
