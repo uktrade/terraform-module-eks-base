@@ -54,9 +54,12 @@ rules:
   verbs: ["*"]
 - apiGroups: [""]
   resources:
+  - services
+  verbs: ["list", "get", "watch", "update"]
+- apiGroups: [""]
+  resources:
   - namespaces
   - nodes
-  - services
   - endpoints
   - pods
   verbs: ["list", "get", "watch"]
