@@ -142,7 +142,7 @@ EOF
 resource "null_resource" "prometheus-patch" {
   provisioner "local-exec" {
     command = <<EOF
-cat <<EOL | kubectl patch -n monitoring statefulset prometheus -p '${data.template_file.prometheus-patch.rendered}'
+cat <<EOL | kubectl patch -n monitoring statefulset prometheus-prometheus -p '${data.template_file.prometheus-patch.rendered}'
 EOL
 EOF
     environment {
