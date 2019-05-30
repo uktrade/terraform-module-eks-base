@@ -242,9 +242,7 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
-  triggers {
-    build_number = "${timestamp()}"
-  }
+  depends_on = ["null_resource.prometheus"]
 }
 
 resource "helm_release" "kube-state-metrics" {
@@ -252,4 +250,5 @@ resource "helm_release" "kube-state-metrics" {
   namespace = "monitoring"
   repository = "stable"
   chart = "kube-state-metrics"
+  depends_on = ["null_resource.kube-state-metrics-patch"]
 }
