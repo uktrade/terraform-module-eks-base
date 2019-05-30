@@ -55,12 +55,12 @@ rules:
 - apiGroups: [""]
   resources:
   - services
+  - endpoints
   verbs: ["list", "get", "watch", "update"]
 - apiGroups: [""]
   resources:
   - namespaces
   - nodes
-  - endpoints
   - pods
   verbs: ["list", "get", "watch"]
 - nonResourceURLs: ["/metrics"]
