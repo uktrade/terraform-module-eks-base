@@ -101,6 +101,7 @@ EOF
   triggers {
     build_number = "${timestamp()}"
   }
+  depends_on = ["null_resource.prometheus-init"]
 }
 
 resource "null_resource" "prometheus" {
@@ -191,6 +192,7 @@ EOF
   triggers {
     build_number = "${timestamp()}"
   }
+  depends_on = ["null_resource.grafana"]
 }
 
 data "template_file" "grafana-ingress" {
