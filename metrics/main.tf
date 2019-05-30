@@ -242,6 +242,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
   depends_on = ["null_resource.prometheus"]
 }
 
