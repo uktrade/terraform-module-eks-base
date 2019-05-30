@@ -75,6 +75,9 @@ EOF
       KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
+  triggers {
+    build_number = "${timestamp()}"
+  }
 }
 
 data "template_file" "prometheus-patch_2" {
