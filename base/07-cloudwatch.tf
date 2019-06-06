@@ -7,6 +7,7 @@ locals {
 
 provider "aws" {
   alias = "aws-k8s"
+  region = "us-east-1"
 }
 
 data "aws_s3_bucket_object" "cloudwatch-ns" {
