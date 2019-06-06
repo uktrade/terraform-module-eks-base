@@ -5,7 +5,12 @@ locals {
   statsd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/statsd"
 }
 
+provider "aws" {
+  alias = "aws-k8s"
+}
+
 data "aws_s3_bucket_object" "cloudwatch-ns" {
+  rovider = "aws.aws-k8s"
   bucket = "${local.s3_bucket}"
   key = "kubernetes-monitoring/cloudwatch-namespace.yaml"
 }
