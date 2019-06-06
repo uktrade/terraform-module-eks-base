@@ -48,8 +48,7 @@ kind: Deployment
 metadata:
   name: externalipcontroller
 spec:
-  # only single replica allowed until we will add protection against fighting for
-  # same ip, this agent will probably become daemonset at that point
+  # only single replica allowed until we will add protection against fighting for same ip, this agent will probably become daemonset at that point
   replicas: 1
   template:
     metadata:
