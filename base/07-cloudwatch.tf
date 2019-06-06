@@ -10,7 +10,7 @@ provider "aws" {
 }
 
 data "aws_s3_bucket_object" "cloudwatch-ns" {
-  rovider = "aws.aws-k8s"
+  provider = "aws.aws-k8s"
   bucket = "${local.s3_bucket}"
   key = "kubernetes-monitoring/cloudwatch-namespace.yaml"
 }
