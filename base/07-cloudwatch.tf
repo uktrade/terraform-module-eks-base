@@ -153,7 +153,7 @@ resource "kubernetes_config_map" "cloudwatch-fluentd" {
 
 resource "null_resource" "cloudwatch-statsd-config-temp" {
   provisioner "local-exec" {
-    command = "wget -O ${local.local_temp}/cwagent-statsd-configmap.yaml ${local.cloudwatch_url}/cwagent-statsd-configmap.yaml"
+    command = "wget -O ${local.local_temp}/cwagent-statsd-configmap.yaml ${local.statsd_url}/cwagent-statsd-configmap.yaml"
   }
   triggers {
     build_number = "${timestamp()}"
@@ -176,7 +176,7 @@ resource "null_resource" "cloudwatch-statsd-config" {
 
 resource "null_resource" "cloudwatch-statsd-daemonset-temp" {
   provisioner "local-exec" {
-    command = "wget -O ${local.local_temp}/cwagent-statsd-daemonset.yaml ${local.cloudwatch_url}/cwagent-statsd-daemonset.yaml"
+    command = "wget -O ${local.local_temp}/cwagent-statsd-daemonset.yaml ${local.statsd_url}/cwagent-statsd-daemonset.yaml"
   }
   triggers {
     build_number = "${timestamp()}"
