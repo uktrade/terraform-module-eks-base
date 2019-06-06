@@ -3,6 +3,10 @@ locals {
   amazon-k8s-cni-url = "https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/master/config/v${local.amazon-k8s-cni-release}"
 }
 
+data "http" "k8s-cni" {
+  url = "${local.amazon-k8s-cni-url}/aws-k8s-cni.yaml"
+}
+
 resource "null_resource" "k8s-cni" {
   provisioner "local-exec" {
     command = "kubectl apply -f ${local.amazon-k8s-cni-url}/aws-k8s-cni.yaml"
@@ -11,8 +15,12 @@ resource "null_resource" "k8s-cni" {
     }
   }
   triggers {
-    build_number = "${sha1("${local.amazon-k8s-cni-url}/aws-k8s-cni.yaml")}"
+    build_number = "${sha1(data.http.k8s-cni.body)}"
   }
+}
+
+data "http" "k8s-calico" {
+  url = "${local.amazon-k8s-cni-url}/calico.yaml"
 }
 
 resource "null_resource" "k8s-calico" {
@@ -23,8 +31,12 @@ resource "null_resource" "k8s-calico" {
     }
   }
   triggers {
-    build_number = "${sha1("${local.amazon-k8s-cni-url}/calico.yaml")}"
+    build_number = "${sha1(data.http.k8s-calico.body)}"
   }
+}
+
+data "http" "k8s-cni-metrics" {
+  url = "${local.amazon-k8s-cni-url}/cni-metrics-helper.yaml"
 }
 
 resource "null_resource" "k8s-calico-metrics" {
@@ -35,6 +47,6 @@ resource "null_resource" "k8s-calico-metrics" {
     }
   }
   triggers {
-    build_number = "${sha1("${local.amazon-k8s-cni-url}/cni-metrics-helper.yaml")}"
+    build_number = "${sha1(data.http.k8s-calico-metrics.body)}"
   }
 }
