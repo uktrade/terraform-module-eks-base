@@ -4,6 +4,10 @@ locals {
   statsd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/statsd"
 }
 
+data "http" "cloudwatch-ns" {
+  url = "${local.cloudwatch_url}/cloudwatch-namespace.yaml"
+}
+
 resource "null_resource" "cloudwatch-ns" {
   provisioner "local-exec" {
     command = "kubectl apply -f ${local.cloudwatch_url}/cloudwatch-namespace.yaml"
@@ -12,8 +16,12 @@ resource "null_resource" "cloudwatch-ns" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.cloudwatch-ns.body)}"
   }
+}
+
+data "http" "cloudwatch-config" {
+  url = "${local.cloudwatch_url}/cwagent-configmap.yaml"
 }
 
 resource "null_resource" "cloudwatch-config" {
@@ -24,7 +32,7 @@ resource "null_resource" "cloudwatch-config" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.cloudwatch-config.body)}"
   }
   depends_on = ["null_resource.cloudwatch-ns"]
 }
@@ -58,9 +66,13 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.cloudwatch-config.body)}"
   }
   depends_on = ["null_resource.cloudwatch-ns"]
+}
+
+data "http" "cloudwatch-daemonset" {
+  url = "${local.cloudwatch_url}/cwagent-daemonset.yaml"
 }
 
 resource "null_resource" "cloudwatch-daemonset" {
@@ -71,9 +83,13 @@ resource "null_resource" "cloudwatch-daemonset" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.cloudwatch-daemonset.body)}"
   }
   depends_on = ["null_resource.cloudwatch-ns"]
+}
+
+data "http" "cloudwatch-fluentd" {
+  url = "${local.fluentd_url}"
 }
 
 resource "null_resource" "cloudwatch-fluentd" {
@@ -84,7 +100,7 @@ resource "null_resource" "cloudwatch-fluentd" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.cloudwatch-daemonset.body)}"
   }
   depends_on = ["null_resource.cloudwatch-ns"]
 }
@@ -100,6 +116,10 @@ resource "kubernetes_config_map" "cloudwatch-fluentd" {
   }
 }
 
+data "http" "cloudwatch-statsd-config" {
+  url = "${local.statsd_url}/cwagent-statsd-configmap.yaml"
+}
+
 resource "null_resource" "cloudwatch-statsd-config" {
   provisioner "local-exec" {
     command = "kubectl apply -f ${local.statsd_url}/cwagent-statsd-configmap.yaml"
@@ -108,9 +128,13 @@ resource "null_resource" "cloudwatch-statsd-config" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.cloudwatch-statsd-config.body)}"
   }
   depends_on = ["null_resource.cloudwatch-ns"]
+}
+
+data "http" "cloudwatch-statsd-daemonset" {
+  url = "${local.statsd_url}/cwagent-statsd-daemonset.yaml"
 }
 
 resource "null_resource" "cloudwatch-statsd-daemonset" {
@@ -121,7 +145,7 @@ resource "null_resource" "cloudwatch-statsd-daemonset" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.cloudwatch-statsd-daemonset.body)}"
   }
   depends_on = ["null_resource.cloudwatch-ns"]
 }

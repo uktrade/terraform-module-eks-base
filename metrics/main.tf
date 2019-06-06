@@ -6,6 +6,10 @@ locals {
   metrics_url = "https://raw.githubusercontent.com/aws-samples/aws-workshop-for-kubernetes/master/02-path-working-with-clusters/201-cluster-monitoring/templates"
 }
 
+data "http" "prometheus-init" {
+  url = "${local.metrics_url}/prometheus/prometheus-bundle.yaml"
+}
+
 resource "null_resource" "prometheus-init" {
   provisioner "local-exec" {
     command = "kubectl apply -f ${local.metrics_url}/prometheus/prometheus-bundle.yaml"
@@ -14,7 +18,7 @@ resource "null_resource" "prometheus-init" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.prometheus-init.body)}"
   }
 }
 
@@ -79,7 +83,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.prometheus-init.body)}"
   }
   depends_on = ["null_resource.prometheus-init"]
 }
@@ -102,13 +106,17 @@ cat <<EOL | kubectl patch -n monitoring deployment prometheus-operator -p '${dat
 EOL
 EOF
     environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
+      KUBECONFIG = "${sha1(data.http.prometheus-init.body)}"
     }
   }
   triggers {
     build_number = "${timestamp()}"
   }
   depends_on = ["null_resource.prometheus-init"]
+}
+
+data "http" "prometheus" {
+  url = "${local.metrics_url}/prometheus/prometheus.yaml"
 }
 
 resource "null_resource" "prometheus" {
@@ -119,7 +127,7 @@ resource "null_resource" "prometheus" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.prometheus.body)}"
   }
 }
 
@@ -147,7 +155,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.prometheus.body)}"
   }
   depends_on = ["null_resource.prometheus"]
 }
@@ -188,8 +196,12 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.template_file.prometheus-ingress.rendered)}"
   }
+}
+
+data "http" "grafana" {
+  url = "${local.metrics_url}/prometheus/grafana-bundle.yaml"
 }
 
 resource "null_resource" "grafana" {
@@ -200,7 +212,7 @@ resource "null_resource" "grafana" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.grafana.body)}"
   }
 }
 
@@ -226,7 +238,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.grafana.body)}"
   }
   depends_on = ["null_resource.grafana"]
 }
@@ -264,7 +276,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.template_file.grafana-ingress.rendered)}"
   }
 }
 
@@ -279,7 +291,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.prometheus.body)}"
   }
   depends_on = ["null_resource.prometheus"]
 }
@@ -314,7 +326,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.prometheus.body)}"
   }
   depends_on = ["null_resource.prometheus"]
 }
@@ -341,7 +353,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.prometheus.body)}"
   }
   depends_on = ["null_resource.prometheus"]
 }
@@ -382,7 +394,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.prometheus.body)}"
   }
   depends_on = ["null_resource.prometheus"]
 }
