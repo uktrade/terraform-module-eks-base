@@ -106,11 +106,11 @@ cat <<EOL | kubectl patch -n monitoring deployment prometheus-operator -p '${dat
 EOL
 EOF
     environment {
-      KUBECONFIG = "${sha1(data.http.prometheus-init.body)}"
+      KUBECONFIG = "${var.kubeconfig_filename}"
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.http.prometheus-init.body)}"
   }
   depends_on = ["null_resource.prometheus-init"]
 }
