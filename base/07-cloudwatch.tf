@@ -21,6 +21,7 @@ resource "null_resource" "cloudwatch-ns-temp" {
   triggers {
     build_number = "${timestamp()}"
   }
+  depends_on = ["null_resource.temp"]
 }
 
 resource "null_resource" "cloudwatch-ns" {
@@ -33,6 +34,7 @@ resource "null_resource" "cloudwatch-ns" {
   triggers {
     build_number = "${sha1(file("${local.local_temp}/cloudwatch-namespace.yaml"))}"
   }
+  depends_on = ["null_resource.cloudwatch-ns-temp"]
 }
 
 resource "null_resource" "cloudwatch-config-temp" {
@@ -42,6 +44,7 @@ resource "null_resource" "cloudwatch-config-temp" {
   triggers {
     build_number = "${timestamp()}"
   }
+  depends_on = ["null_resource.temp"]
 }
 
 resource "null_resource" "cloudwatch-config" {
@@ -54,7 +57,7 @@ resource "null_resource" "cloudwatch-config" {
   triggers {
     build_number = "${sha1(file("${local.local_temp}/cwagent-configmap.yaml"))}"
   }
-  depends_on = ["null_resource.cloudwatch-ns"]
+  depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-config-temp"]
 }
 
 data "template_file" "cloudwatch-config-patch" {
@@ -88,7 +91,7 @@ EOF
   triggers {
     build_number = "${sha1(file("${local.local_temp}/cwagent-configmap.yaml"))}"
   }
-  depends_on = ["null_resource.cloudwatch-ns"]
+  depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-config-temp"]
 }
 
 resource "null_resource" "cloudwatch-daemonset-temp" {
@@ -98,6 +101,7 @@ resource "null_resource" "cloudwatch-daemonset-temp" {
   triggers {
     build_number = "${timestamp()}"
   }
+  depends_on = ["null_resource.temp"]
 }
 
 resource "null_resource" "cloudwatch-daemonset" {
@@ -110,7 +114,7 @@ resource "null_resource" "cloudwatch-daemonset" {
   triggers {
     build_number = "${sha1(file("${local.local_temp}/cwagent-daemonset.yaml"))}"
   }
-  depends_on = ["null_resource.cloudwatch-ns"]
+  depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-daemonset-temp"]
 }
 
 resource "null_resource" "cloudwatch-fluentd-temp" {
@@ -120,6 +124,7 @@ resource "null_resource" "cloudwatch-fluentd-temp" {
   triggers {
     build_number = "${timestamp()}"
   }
+  depends_on = ["null_resource.temp"]
 }
 
 resource "null_resource" "cloudwatch-fluentd" {
@@ -132,7 +137,7 @@ resource "null_resource" "cloudwatch-fluentd" {
   triggers {
     build_number = "${sha1(file("${local.local_temp}/fluentd.yaml"))}"
   }
-  depends_on = ["null_resource.cloudwatch-ns"]
+  depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-fluentd-temp"]
 }
 
 resource "kubernetes_config_map" "cloudwatch-fluentd" {
@@ -146,13 +151,14 @@ resource "kubernetes_config_map" "cloudwatch-fluentd" {
   }
 }
 
-resource "null_resource" "cloudwatch-statsd-temp" {
+resource "null_resource" "cloudwatch-statsd-config-temp" {
   provisioner "local-exec" {
     command = "wget -O ${local.local_temp}/cwagent-statsd-configmap.yaml ${local.cloudwatch_url}/cwagent-statsd-configmap.yaml"
   }
   triggers {
     build_number = "${timestamp()}"
   }
+  depends_on = ["null_resource.temp"]
 }
 
 resource "null_resource" "cloudwatch-statsd-config" {
@@ -165,7 +171,7 @@ resource "null_resource" "cloudwatch-statsd-config" {
   triggers {
     build_number = "${sha1(file("${local.local_temp}/cwagent-statsd-configmap.yaml"))}"
   }
-  depends_on = ["null_resource.cloudwatch-ns"]
+  depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-statsd-config-temp"]
 }
 
 resource "null_resource" "cloudwatch-statsd-daemonset-temp" {
@@ -175,6 +181,7 @@ resource "null_resource" "cloudwatch-statsd-daemonset-temp" {
   triggers {
     build_number = "${timestamp()}"
   }
+  depends_on = ["null_resource.temp"]
 }
 
 resource "null_resource" "cloudwatch-statsd-daemonset" {
@@ -187,5 +194,5 @@ resource "null_resource" "cloudwatch-statsd-daemonset" {
   triggers {
     build_number = "${sha1(file("${local.local_temp}/cwagent-statsd-daemonset.yaml"))}"
   }
-  depends_on = ["null_resource.cloudwatch-ns"]
+  depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-statsd-daemonset-temp"]
 }
