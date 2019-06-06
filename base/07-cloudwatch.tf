@@ -1,14 +1,13 @@
 locals {
+  s3_bucket = "cloudwatch-agent-k8s-yamls"
   cloudwatch_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/kubernetes-monitoring"
   fluentd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/fluentd/fluentd.yml"
   statsd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/statsd"
 }
 
-data "http" "cloudwatch-ns" {
-  url = "${local.cloudwatch_url}/cloudwatch-namespace.yaml"
-  request_headers {
-    "Content-Type" = "text/yaml"
-  }
+data "aws_s3_bucket_object" "cloudwatch-ns" {
+  bucket = "${local.s3_bucket}"
+  key = "kubernetes-monitoring/cloudwatch-namespace.yaml"
 }
 
 resource "null_resource" "cloudwatch-ns" {
@@ -19,7 +18,7 @@ resource "null_resource" "cloudwatch-ns" {
     }
   }
   triggers {
-    build_number = "${sha1(data.http.cloudwatch-ns.body)}"
+    build_number = "${sha1(data.aws_s3_bucket_object.cloudwatch-ns.body)}"
   }
 }
 
