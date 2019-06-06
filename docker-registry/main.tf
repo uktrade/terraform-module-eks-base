@@ -123,7 +123,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${helm_release.registry.revision}"
+    build_number = "${helm_release.registry.version}"
   }
 }
 
