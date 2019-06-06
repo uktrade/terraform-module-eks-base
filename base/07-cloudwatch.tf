@@ -6,6 +6,9 @@ locals {
 
 data "http" "cloudwatch-ns" {
   url = "${local.cloudwatch_url}/cloudwatch-namespace.yaml"
+  request_headers {
+    "Content-Type" = "text/yaml"
+  }
 }
 
 resource "null_resource" "cloudwatch-ns" {
