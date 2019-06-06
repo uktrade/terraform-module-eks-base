@@ -11,7 +11,7 @@ resource "null_resource" "k8s-cni" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(file("${local.amazon-k8s-cni-url}/aws-k8s-cni.yaml"))}"
   }
 }
 
@@ -23,7 +23,7 @@ resource "null_resource" "k8s-calico" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(file("${local.amazon-k8s-cni-url}/calico.yaml"))}"
   }
 }
 
@@ -35,6 +35,6 @@ resource "null_resource" "k8s-calico-metrics" {
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(file("${local.amazon-k8s-cni-url}/cni-metrics-helper.yaml"))}"
   }
 }
