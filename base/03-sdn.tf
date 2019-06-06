@@ -35,7 +35,7 @@ resource "null_resource" "k8s-calico" {
   }
 }
 
-data "http" "k8s-cni-metrics" {
+data "http" "k8s-calico-metrics" {
   url = "${local.amazon-k8s-cni-url}/cni-metrics-helper.yaml"
 }
 
