@@ -101,7 +101,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.template_file.dashboard-oauth.rendered)}"
   }
 }
 

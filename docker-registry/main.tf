@@ -123,7 +123,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${helm_release.registry.revision}"
   }
 }
 
@@ -239,7 +239,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.template_file.portus.rendered)}"
   }
 }
 
@@ -320,7 +320,7 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.template_file.portus-ingress.rendered)}"
   }
 }
 
@@ -336,6 +336,6 @@ EOF
     }
   }
   triggers {
-    build_number = "${timestamp()}"
+    build_number = "${sha1(data.template_file.docker-registry-ingress.rendered)}"
   }
 }
