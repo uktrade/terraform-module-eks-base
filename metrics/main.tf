@@ -57,6 +57,10 @@ spec:
       containers:
         - name: grafana
           env:
+            - name: GF_SERVER_DOMAIN
+              value: "metric.${var.cluster_domain}"
+            - name: GF_SERVER_ROOT_URL
+              value: "https://metric.${var.cluster_domain}/"
             - name: GF_AUTH_GITHUB_ENABLED
               value: "true"
             - name: GF_AUTH_GITHUB_ALLOW_SIGN_UP
