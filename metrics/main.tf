@@ -4,11 +4,6 @@ provider "kubernetes" {
 
 data "template_file" "prometheus-values" {
   template = <<EOF
-commonLabels:
-  app: prometheus
-defaultRules:
-  labels:
-    app: prometheus
 prometheusOperator:
   nodeSelector:
     role: worker
