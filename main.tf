@@ -28,6 +28,7 @@ module "eks-metrics" {
   cluster_id = "${var.cluster_id}"
   cluster_domain = "${var.cluster_domain}"
   kubeconfig_filename = "${var.kubeconfig_filename}"
+  metric_config = "${var.metric_config}"
 }
 
 

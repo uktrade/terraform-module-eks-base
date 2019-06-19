@@ -15,6 +15,8 @@ prometheus:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        rewrite ^/$ /targets last;
     hosts:
       - "status.${var.cluster_domain}"
 alertmanager:
@@ -43,4 +45,45 @@ resource "helm_release" "prometheus" {
   repository = "stable"
   chart = "prometheus-operator"
   values = ["${data.template_file.prometheus-values.rendered}"]
+}
+
+data "template_file" "grafana-oauth" {
+  template = <<EOF
+spec:
+  template:
+    spec:
+      nodeSelector:
+        role: worker
+      containers:
+        - name: grafana
+          env:
+            - name: GF_AUTH_GITHUB_ENABLED
+              value: "true"
+            - name: GF_AUTH_GITHUB_ALLOW_SIGN_UP
+              value: "false"
+            - name: GF_AUTH_GITHUB_CLIENT_ID
+              value: ${var.metric_config["oauth_client_id"]}
+            - name: GF_AUTH_GITHUB_CLIENT_SECRET
+              value: ${var.metric_config["oauth_client_secret"]}
+            - name: GF_AUTH_GITHUB_ALLOWED_ORGANIZATIONS
+              value: ${var.metric_config["oauth_organization"]}
+            - name: GF_AUTH_GITHUB_TEAM_IDS
+              value: ${var.metric_config["oauth_team"]}
+EOF
+}
+
+resource "null_resource" "grafana-oauth" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n monitoring patch deployment prometheus-grafana -p '${data.template_file.grafana-oauth.rendered}'
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  triggers {
+    build_number = "${sha1(data.template_file.grafana-oauth.rendered)}"
+  }
+  depends_on = ["helm_release.prometheus"]
 }

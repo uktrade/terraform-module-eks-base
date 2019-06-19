@@ -32,3 +32,8 @@ variable "logging_config" {
   type = "map"
   default = {}
 }
+
+variable "metric_config" {
+  type = "map"
+  default = {}
+}
