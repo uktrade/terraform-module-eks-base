@@ -64,7 +64,7 @@ spec:
             - name: GF_AUTH_GITHUB_ENABLED
               value: "true"
             - name: GF_AUTH_GITHUB_ALLOW_SIGN_UP
-              value: "false"
+              value: "true"
             - name: GF_AUTH_GITHUB_CLIENT_ID
               value: "${var.metric_config["oauth_client_id"]}"
             - name: GF_AUTH_GITHUB_CLIENT_SECRET
