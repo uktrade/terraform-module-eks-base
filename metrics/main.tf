@@ -13,6 +13,8 @@ prometheus:
       role: worker
   ingress:
     enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
     hosts:
       - "status.${var.cluster_domain}"
 alertmanager:
@@ -21,11 +23,15 @@ alertmanager:
       role: worker
   ingress:
     enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
     hosts:
       - "alert.${var.cluster_domain}"
 grafana:
   ingress:
     enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
     hosts:
       - "metric.${var.cluster_domain}"
 EOF
