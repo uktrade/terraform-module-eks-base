@@ -62,13 +62,13 @@ spec:
             - name: GF_AUTH_GITHUB_ALLOW_SIGN_UP
               value: "false"
             - name: GF_AUTH_GITHUB_CLIENT_ID
-              value: ${var.metric_config["oauth_client_id"]}
+              value: "${var.metric_config["oauth_client_id"]}"
             - name: GF_AUTH_GITHUB_CLIENT_SECRET
-              value: ${var.metric_config["oauth_client_secret"]}
+              value: "${var.metric_config["oauth_client_secret"]}"
             - name: GF_AUTH_GITHUB_ALLOWED_ORGANIZATIONS
-              value: ${var.metric_config["oauth_organization"]}
+              value: "${var.metric_config["oauth_organization"]}"
             - name: GF_AUTH_GITHUB_TEAM_IDS
-              value: ${var.metric_config["oauth_team"]}
+              value: "${var.metric_config["oauth_team"]}"
 EOF
 }
 
