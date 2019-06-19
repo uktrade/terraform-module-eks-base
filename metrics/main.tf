@@ -83,7 +83,8 @@ EOF
     }
   }
   triggers {
-    build_number = "${sha1(data.template_file.grafana-oauth.rendered)}"
+    helm = "${helm_release.prometheus.version}"
+    patch = "${sha1(data.template_file.grafana-oauth.rendered)}"
   }
   depends_on = ["helm_release.prometheus"]
 }
