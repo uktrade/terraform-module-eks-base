@@ -9,6 +9,8 @@ rbac:
   create: true
 serviceMonitor:
   enabled: true
+nodeSelector:
+  role: worker
 EOF
 }
 

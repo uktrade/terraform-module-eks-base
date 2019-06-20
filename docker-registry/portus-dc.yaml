@@ -15,6 +15,8 @@ spec:
       labels:
         app: portus
     spec:
+      nodeSelector:
+        role: worker
       containers:
       - name: portus-web
         env:

@@ -6,6 +6,8 @@ data "template_file" "metrics-server-values" {
   template = <<EOF
 args:
   - --kubelet-preferred-address-types=InternalIP
+nodeSelector:
+  role: worker
 EOF
 }
 
@@ -31,6 +33,8 @@ config:
     cookie_refresh = 60
     pass_access_token = true
     upstream = "file:///dev/null"
+nodeSelector:
+  role: worker
 EOF
 }
 
@@ -59,6 +63,8 @@ ingress:
     kubernetes.io/ingress.allow-http: "false"
     nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+nodeSelector:
+  role: worker
 EOF
 }
 

@@ -79,6 +79,8 @@ configData:
         timeout: 500ms
         threshold: 5
         backoff: 1s
+nodeSelector:
+  role: worker
 EOF
 }
 

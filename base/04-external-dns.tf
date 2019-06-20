@@ -48,6 +48,8 @@ sources:
 policy: sync
 rbac:
   create: true
+nodeSelector:
+  role: worker
 EOF
 }
 

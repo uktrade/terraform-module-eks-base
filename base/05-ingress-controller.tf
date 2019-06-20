@@ -73,6 +73,8 @@ controller:
     annotations-prefix: nginx.ingress.kubernetes.io
   publishService:
     enabled: true
+  nodeSelector:
+    role: worker
 defaultBackend:
   enabled: false
 stats:
@@ -116,6 +118,8 @@ controller:
     annotations-prefix: nginx.ingress.kubernetes.io
   publishService:
     enabled: true
+  nodeSelector:
+    role: worker
 defaultBackend:
   enabled: false
 stats:
