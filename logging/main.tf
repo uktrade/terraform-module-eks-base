@@ -19,8 +19,7 @@ rbac:
 image:
   tag: v1.4.2-debian-cloudwatch-1.0
 extraVars:
-  - name: CLUSTER_NAME
-    value: "${var.cluster_id}"
+  - "{name: CLUSTER_NAME, value: ${var.cluster_id}}"
 EOF
 }
 
