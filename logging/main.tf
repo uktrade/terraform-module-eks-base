@@ -47,7 +47,7 @@ data:
         @type record_transformer
         @id filter_containers_stream_transformer
         <record>
-          stream_name $${tag_parts[3]}
+          stream_name \$${tag_parts[3]}
         </record>
       </filter>
 
@@ -125,7 +125,7 @@ data:
         @type record_transformer
         @id filter_containers_stream_transformer_host
         <record>
-          stream_name $${tag}-$${record["host"]}
+          stream_name \$${tag}-\$${record["host"]}
         </record>
       </filter>
 
@@ -201,7 +201,7 @@ data:
         @type record_transformer
         @id filter_systemd_stream_transformer
         <record>
-          stream_name $${tag}-$${record["hostname"]}
+          stream_name \$${tag}-\$${record["hostname"]}
         </record>
       </filter>
 
