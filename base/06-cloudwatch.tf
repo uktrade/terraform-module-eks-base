@@ -1,6 +1,5 @@
 locals {
   cloudwatch_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/kubernetes-monitoring"
-  fluentd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/fluentd/fluentd.yml"
   statsd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/statsd"
   local_temp = "${path.root}/.terraform/temp"
 }
@@ -115,40 +114,6 @@ resource "null_resource" "cloudwatch-daemonset" {
     build_number = "${sha1(file("${local.local_temp}/cwagent-daemonset.yaml"))}"
   }
   depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-daemonset-temp"]
-}
-
-resource "null_resource" "cloudwatch-fluentd-temp" {
-  provisioner "local-exec" {
-    command = "wget -O ${local.local_temp}/fluentd.yaml ${local.fluentd_url}"
-  }
-  triggers {
-    build_number = "${timestamp()}"
-  }
-  depends_on = ["null_resource.temp"]
-}
-
-resource "null_resource" "cloudwatch-fluentd" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f ${local.fluentd_url}"
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
-    }
-  }
-  triggers {
-    build_number = "${sha1(file("${local.local_temp}/fluentd.yaml"))}"
-  }
-  depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-fluentd-temp"]
-}
-
-resource "kubernetes_config_map" "cloudwatch-fluentd" {
-  metadata {
-    name = "cluster-info"
-    namespace = "amazon-cloudwatch"
-  }
-  data {
-    cluster.name = "${var.cluster_id}"
-    logs.region = "${data.aws_region.current.name}"
-  }
 }
 
 resource "null_resource" "cloudwatch-statsd-config-temp" {
