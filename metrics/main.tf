@@ -9,6 +9,7 @@ prometheusOperator:
     role: worker
 prometheus:
   prometheusSpec:
+    enableAdminAPI: true
     nodeSelector:
       role: worker
   ingress:
