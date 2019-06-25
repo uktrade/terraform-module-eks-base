@@ -4,6 +4,9 @@ provider "kubernetes" {
 
 data "template_file" "prometheus-values" {
   template = <<EOF
+defaultRules:
+  rules:
+    kubernetesAbsent: false
 prometheusOperator:
   nodeSelector:
     role: worker
