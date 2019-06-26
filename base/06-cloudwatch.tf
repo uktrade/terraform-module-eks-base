@@ -93,6 +93,29 @@ EOF
   depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-config-temp"]
 }
 
+resource "null_resource" "cloudwatch-sa-temp" {
+  provisioner "local-exec" {
+    command = "wget -O ${local.local_temp}/cwagent-serviceaccount.yaml ${local.cloudwatch_url}/cwagent-serviceaccount.yaml"
+  }
+  triggers {
+    build_number = "${timestamp()}"
+  }
+  depends_on = ["null_resource.temp"]
+}
+
+resource "null_resource" "cloudwatch-sa" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f ${local.cloudwatch_url}/cwagent-serviceaccount.yaml"
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  triggers {
+    build_number = "${sha1(file("${local.local_temp}/cwagent-serviceaccount.yaml"))}"
+  }
+  depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-sa-temp"]
+}
+
 resource "null_resource" "cloudwatch-daemonset-temp" {
   provisioner "local-exec" {
     command = "wget -O ${local.local_temp}/cwagent-daemonset.yaml ${local.cloudwatch_url}/cwagent-daemonset.yaml"
@@ -113,7 +136,7 @@ resource "null_resource" "cloudwatch-daemonset" {
   triggers {
     build_number = "${sha1(file("${local.local_temp}/cwagent-daemonset.yaml"))}"
   }
-  depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-daemonset-temp"]
+  depends_on = ["null_resource.cloudwatch-ns", "null_resource.cloudwatch-sa", "null_resource.cloudwatch-daemonset-temp"]
 }
 
 resource "null_resource" "cloudwatch-statsd-config-temp" {
