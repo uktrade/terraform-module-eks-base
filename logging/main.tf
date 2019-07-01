@@ -13,7 +13,7 @@ data "template_file" "fluentd" {
 awsRegion: ${var.logging_config["aws_region"]}
 awsAccessKeyId: ${var.logging_config["aws_access_key"]}
 awsSecretAccessKey: ${var.logging_config["aws_secret_key"]}
-logGroupName: ${var.logging_config["aws_log_group"]}
+logGroupName: "${var.cluster_domain}-k8s"
 rbac:
   create: true
 image:
