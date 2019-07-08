@@ -225,7 +225,7 @@ resource "kubernetes_secret" "portus-secret" {
 data "template_file" "portus" {
   template = "${file("${path.module}/portus-dc.yaml")}"
   vars = {
-    version = "${var.registry_config["version"]}"
+    version = "${var.registry_config["portus_version"]}"
   }
 }
 
