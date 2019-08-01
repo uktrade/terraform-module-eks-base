@@ -4,6 +4,7 @@ module "eks-base" {
   cluster_domain = "${var.cluster_domain}"
   worker_iam_role_name = "${var.worker_iam_role_name}"
   kubeconfig_filename = "${var.kubeconfig_filename}"
+  helm_release = "${var.helm_release}"
 }
 
 module "eks-dashboard" {
@@ -13,6 +14,7 @@ module "eks-dashboard" {
   cluster_ca_certificate = "${var.cluster_ca_certificate}"
   kubeconfig_filename = "${var.kubeconfig_filename}"
   dashboard_oauth_config = "${var.dashboard_oauth_config}"
+  helm_release = "${var.helm_release}"
 }
 
 module "eks-registry" {
@@ -21,6 +23,7 @@ module "eks-registry" {
   cluster_domain = "${var.cluster_domain}"
   kubeconfig_filename = "${var.kubeconfig_filename}"
   registry_config = "${var.registry_config}"
+  helm_release = "${var.helm_release}"
 }
 
 module "eks-metrics" {
@@ -29,6 +32,7 @@ module "eks-metrics" {
   cluster_domain = "${var.cluster_domain}"
   kubeconfig_filename = "${var.kubeconfig_filename}"
   metric_config = "${var.metric_config}"
+  helm_release = "${var.helm_release}"
 }
 
 
@@ -38,4 +42,5 @@ module "eks-logging" {
   cluster_domain = "${var.cluster_domain}"
   kubeconfig_filename = "${var.kubeconfig_filename}"
   logging_config = "${var.logging_config}"
+  helm_release = "${var.helm_release}"
 }

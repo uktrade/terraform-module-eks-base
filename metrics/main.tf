@@ -45,6 +45,7 @@ resource "helm_release" "prometheus" {
   namespace = "monitoring"
   repository = "stable"
   chart = "prometheus-operator"
+  version = "${var.helm_release["prometheus-operator"]}"
   values = ["${data.template_file.prometheus-values.rendered}"]
 }
 

@@ -18,3 +18,8 @@ variable "registry_config" {
   type = "map"
   default = {}
 }
+
+variable "helm_release" {
+  type = "map"
+  default = {}
+}

@@ -28,5 +28,6 @@ resource "helm_release" "fluentd" {
   namespace = "logging"
   repository = "incubator"
   chart = "fluentd-cloudwatch"
+  version = "${var.helm_release["fluentd-cloudwatch"]}"
   values = ["${data.template_file.fluentd.rendered}", "${file("${path.module}/fluentd.conf")}"]
 }

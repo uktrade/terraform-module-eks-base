@@ -16,6 +16,7 @@ resource "helm_release" "metrics-server" {
   namespace = "kube-system"
   repository = "stable"
   chart = "metrics-server"
+  version = "${var.helm_release["metrics-server"]}"
   values = ["${data.template_file.metrics-server-values.rendered}"]
 }
 
@@ -43,6 +44,7 @@ resource "helm_release" "oauth-proxy" {
   namespace = "kube-system"
   repository = "stable"
   chart = "oauth2-proxy"
+  version = "${var.helm_release["oauth2-proxy"]}"
   values = ["${data.template_file.oauth-proxy-values.rendered}"]
 }
 
@@ -73,6 +75,7 @@ resource "helm_release" "dashboard" {
   namespace = "kube-system"
   repository = "stable"
   chart = "kubernetes-dashboard"
+  version = "${var.helm_release["kubernetes-dashboard"]}"
   values = ["${data.template_file.dashboard-values.rendered}"]
 }
 

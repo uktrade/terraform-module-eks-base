@@ -37,3 +37,8 @@ variable "metric_config" {
   type = "map"
   default = {}
 }
+
+variable "helm_release" {
+  type = "map"
+  default = {}
+}

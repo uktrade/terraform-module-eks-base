@@ -15,3 +15,8 @@ variable "worker_iam_role_name" {
 variable "kubeconfig_filename" {
   default = ""
 }
+
+variable "helm_release" {
+  type = "map"
+  default = {}
+}
