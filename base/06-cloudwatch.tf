@@ -64,7 +64,7 @@ data "template_file" "cloudwatch-config-patch" {
 data:
   cwagentconfig.json: |
     {
-      "structuredlogs": {
+      "logs": {
         "metrics_collected": {
           "kubernetes": {
             "cluster_name": "${var.cluster_id}",
