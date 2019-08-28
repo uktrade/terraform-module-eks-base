@@ -86,7 +86,7 @@ EOF
 
 resource "helm_release" "registry" {
   name = "docker-registry"
-  namespace = "default"
+  namespace = "tools"
   repository = "stable"
   chart = "docker-registry"
   version = "${var.helm_release["docker-registry"]}"
@@ -118,7 +118,7 @@ EOF
 resource "null_resource" "registry-portus-patch" {
   provisioner "local-exec" {
     command = <<EOF
-cat <<EOL | kubectl -n default patch deployment docker-registry -p '${data.template_file.registry-portus-patch.rendered}'
+cat <<EOL | kubectl -n tools patch deployment docker-registry -p '${data.template_file.registry-portus-patch.rendered}'
 EOL
 EOF
     environment {
@@ -133,7 +133,7 @@ EOF
 resource "kubernetes_config_map" "portus-config" {
   metadata {
     name = "portus-config"
-    namespace = "default"
+    namespace = "tools"
   }
   data {
     PORTUS_DB_HOST = "${var.registry_config["db_host"]}"
@@ -213,7 +213,7 @@ EOF
 resource "kubernetes_secret" "portus-secret" {
   metadata {
     name = "portus-secrets"
-    namespace = "default"
+    namespace = "tools"
   }
   data {
     PORTUS_CERT = "${tls_self_signed_cert.portus-tls-cert.cert_pem}"
@@ -233,7 +233,7 @@ data "template_file" "portus" {
 resource "null_resource" "portus" {
   provisioner "local-exec" {
     command = <<EOF
-cat <<EOL | kubectl -n default apply -f -
+cat <<EOL | kubectl -n tools apply -f -
 ${data.template_file.portus.rendered}
 EOL
 EOF
@@ -249,7 +249,7 @@ EOF
 resource "kubernetes_service" "portus" {
   metadata {
     name = "portus"
-    namespace = "default"
+    namespace = "tools"
   }
   spec {
     selector {
@@ -314,7 +314,7 @@ EOF
 resource "null_resource" "portus-ingress" {
   provisioner "local-exec" {
     command = <<EOF
-cat <<EOL | kubectl -n default apply -f -
+cat <<EOL | kubectl -n tools apply -f -
 ${data.template_file.portus-ingress.rendered}
 EOL
 EOF
@@ -330,7 +330,7 @@ EOF
 resource "null_resource" "docker-registry-ingress" {
   provisioner "local-exec" {
     command = <<EOF
-cat <<EOL | kubectl -n default apply -f -
+cat <<EOL | kubectl -n tools apply -f -
 ${data.template_file.docker-registry-ingress.rendered}
 EOL
 EOF
