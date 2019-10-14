@@ -1,5 +1,5 @@
 locals {
-  amazon-k8s-cni-release = "1.5"
+  amazon-k8s-cni-release = "1.5.4"
   amazon-k8s-cni-url = "https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/master/config/v${local.amazon-k8s-cni-release}"
 }
 
