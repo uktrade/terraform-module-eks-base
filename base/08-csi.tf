@@ -6,6 +6,7 @@ resource "helm_release" "aws-ebs-csi" {
   name = "aws-ebs-csi-driver"
   namespace = "kube-system"
   chart = "${local.aws-ebs-csi-driver-url}"
+  version = "${var.helm_release["aws-ebs-csi-driver"]}"
   set {
     name = "enableVolumeScheduling"
     value = "true"
