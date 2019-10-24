@@ -54,3 +54,45 @@ EOF
     build_number = "${sha1(data.template_file.aws-ebs-storage-class.rendered)}"
   }
 }
+
+data "template_file" "aws-ebs-patch" {
+  template = <<EOF
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+- ../../base
+images:
+- name: amazon/aws-ebs-csi-driver
+  newName: 602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/aws-ebs-csi-driver
+  newTag: v0.4.0
+- name: quay.io/k8scsi/csi-provisioner
+  newName: 602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/csi-provisioner
+  newTag: v1.3.0
+- name: quay.io/k8scsi/csi-attacher
+  newName: 602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/csi-attacher
+  newTag: v1.2.0
+- name: quay.io/k8scsi/livenessprobe
+  newName: 602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/csi-liveness-probe
+  newTag: v1.1.0
+- name: quay.io/k8scsi/csi-node-driver-registrar
+  newName: 602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/csi-node-driver-registrar
+  newTag: v1.1.0
+EOF
+}
+
+resource "null_resource" "aws-ebs-patch" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOL | kubectl -n kube-system apply -k -
+${data.template_file.aws-ebs-patch.rendered}
+EOL
+EOF
+    environment {
+      KUBECONFIG = "${var.kubeconfig_filename}"
+    }
+  }
+  triggers {
+    helm = "${helm_release.aws-ebs-csi.chart}"
+    build_number = "${sha1(data.template_file.aws-ebs-patch.rendered)}"
+  }
+}
