@@ -34,7 +34,7 @@ allowVolumeExpansion: true
 apiVersion: snapshot.storage.k8s.io/v1alpha1
 kind: VolumeSnapshotClass
 metadata:
-name: ebs-snapshot
+  name: ebs-snapshot
 snapshotter: ebs.csi.aws.com
 EOF
 }
