@@ -20,6 +20,36 @@ resource "null_resource" "k8s-cni" {
   }
 }
 
+# data "template_file" "k8s-cni-patch" {
+#   template = <<EOF
+# spec:
+#   template:
+#     spec:
+#       containers:
+#         - name: aws-node
+#           env:
+#             - name: AWS_VPC_K8S_CNI_EXTERNALSNAT
+#               value: "true"
+# EOF
+# }
+#
+# resource "null_resource" "k8s-cni-patch" {
+#   provisioner "local-exec" {
+#     command = <<EOF
+# cat <<EOL | kubectl -n kube-system patch daemonset.apps aws-node -p '${data.template_file.k8s-cni-patch.rendered}'
+# EOL
+# EOF
+#     environment {
+#       KUBECONFIG = "${var.kubeconfig_filename}"
+#     }
+#   }
+#   triggers {
+#     build_number = "${sha1(data.http.k8s-cni.body)}"
+#   }
+#   depends_on = ["null_resource.k8s-cni"]
+# }
+
+
 data "http" "k8s-calico" {
   url = "${local.amazon-k8s-cni-url}/calico.yaml"
 }
