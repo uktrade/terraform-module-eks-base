@@ -75,7 +75,7 @@ configData:
   notifications:
     endpoints:
       - name: portus
-        url: https://registry.ci.uktrade.io/console/v2/webhooks/events
+        url: https://registry.${var.cluster_domain}/console/v2/webhooks/events
         timeout: 500ms
         threshold: 5
         backoff: 1s
