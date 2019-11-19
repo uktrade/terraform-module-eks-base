@@ -4,7 +4,7 @@ data "aws_route53_zone" "k8s-dns" {
 
 resource "aws_iam_role_policy" "eks-route53" {
   name = "${var.cluster_id}-route53"
-  role = "${var.worker_iam_role_name}"
+  role = var.worker_iam_role_name
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -58,6 +58,6 @@ resource "helm_release" "external-dns" {
   namespace = "kube-system"
   repository = "stable"
   chart = "external-dns"
-  version = "${var.helm_release["external-dns"]}"
+  version = var.helm_release["external-dns"]
   values = ["${data.template_file.external-dns-values.rendered}"]
 }

@@ -1,5 +1,5 @@
 provider "kubernetes" {
-  config_path = "${var.kubeconfig_filename}"
+  config_path = var.kubeconfig_filename
 }
 
 resource "kubernetes_service_account" "tiller" {
@@ -23,20 +23,20 @@ resource "kubernetes_cluster_role_binding" "tiller" {
     kind = "ClusterRole"
     name = "cluster-admin"
   }
-  depends_on = ["kubernetes_service_account.tiller"]
+  depends_on = [kubernetes_service_account.tiller]
 }
 
 resource "null_resource" "helm_init" {
   provisioner "local-exec" {
     command = "helm init --service-account tiller --upgrade --wait"
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
     }
   }
-  triggers {
-    build_number = "${timestamp()}"
+  triggers = {
+    build_number = timestamp()
   }
-  depends_on = ["kubernetes_cluster_role_binding.tiller"]
+  depends_on = [kubernetes_cluster_role_binding.tiller]
 }
 
 provider "helm" {
@@ -44,7 +44,7 @@ provider "helm" {
   namespace = "kube-system"
   service_account = "tiller"
   kubernetes {
-    config_path = "${var.kubeconfig_filename}"
+    config_path = var.kubeconfig_filename
   }
 }
 
@@ -61,12 +61,12 @@ data "helm_repository" "incubator" {
 resource "null_resource" "helm_update" {
   provisioner "local-exec" {
     command = "helm repo update"
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
     }
   }
-  triggers {
-    build_number = "${timestamp()}"
+  triggers = {
+    build_number = timestamp()
   }
-  depends_on = ["kubernetes_cluster_role_binding.tiller"]
+  depends_on = [kubernetes_cluster_role_binding.tiller]
 }

@@ -1,5 +1,5 @@
 provider "kubernetes" {
-  config_path = "${var.kubeconfig_filename}"
+  config_path = var.kubeconfig_filename
 }
 
 data "template_file" "prometheus-values" {
@@ -45,7 +45,7 @@ resource "helm_release" "prometheus" {
   namespace = "monitoring"
   repository = "stable"
   chart = "prometheus-operator"
-  version = "${var.helm_release["prometheus-operator"]}"
+  version = var.helm_release["prometheus-operator"]
   values = ["${data.template_file.prometheus-values.rendered}"]
 }
 
@@ -84,13 +84,13 @@ resource "null_resource" "grafana-oauth" {
 cat <<EOL | kubectl -n monitoring patch deployment prometheus-grafana -p '${data.template_file.grafana-oauth.rendered}'
 EOL
 EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
     }
   }
-  triggers {
-    helm = "${helm_release.prometheus.version}"
-    patch = "${sha1(data.template_file.grafana-oauth.rendered)}"
+  triggers = {
+    helm = helm_release.prometheus.version
+    patch = sha1(data.template_file.grafana-oauth.rendered)
   }
-  depends_on = ["helm_release.prometheus"]
+  depends_on = [helm_release.prometheus]
 }

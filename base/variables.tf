@@ -17,6 +17,6 @@ variable "kubeconfig_filename" {
 }
 
 variable "helm_release" {
-  type = "map"
+  type = map(string)
   default = {}
 }

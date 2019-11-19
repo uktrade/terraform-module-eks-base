@@ -11,7 +11,7 @@ variable "cluster_ca_certificate" {
 }
 
 variable "worker_iam_role_name" {
- default = ""
+  default = ""
 }
 
 variable "kubeconfig_filename" {
@@ -19,26 +19,27 @@ variable "kubeconfig_filename" {
 }
 
 variable "dashboard_oauth_config" {
-  type = "map"
+  type    = map(string)
   default = {}
 }
 
 variable "registry_config" {
-  type = "map"
+  type    = map(string)
   default = {}
 }
 
 variable "logging_config" {
-  type = "map"
+  type    = map(string)
   default = {}
 }
 
 variable "metric_config" {
-  type = "map"
+  type    = map(string)
   default = {}
 }
 
 variable "helm_release" {
-  type = "map"
+  type    = map(string)
   default = {}
 }
+

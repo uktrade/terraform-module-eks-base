@@ -5,8 +5,8 @@ locals {
 # resource "helm_release" "aws-ebs-csi" {
 #   name = "aws-ebs-csi-driver"
 #   namespace = "kube-system"
-#   chart = "${local.aws-ebs-csi-driver-url}"
-#   version = "${var.helm_release["aws-ebs-csi-driver"]}"
+#   chart = local.aws-ebs-csi-driver-url
+#   version = var.helm_release["aws-ebs-csi-driver"]
 # }
 
 data "template_file" "aws-ebs-storage-class" {
@@ -27,11 +27,11 @@ EOF
 # ${data.template_file.aws-ebs-storage-class.rendered}
 # EOL
 # EOF
-#     environment {
-#       KUBECONFIG = "${var.kubeconfig_filename}"
+#     environment = {
+#       KUBECONFIG = var.kubeconfig_filename
 #     }
 #   }
-#   triggers {
-#     build_number = "${sha1(data.template_file.aws-ebs-storage-class.rendered)}"
+#   triggers = {
+#     build_number = sha1(data.template_file.aws-ebs-storage-class.rendered)
 #   }
 # }

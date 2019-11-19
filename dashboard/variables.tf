@@ -19,11 +19,11 @@ variable "kubeconfig_filename" {
 }
 
 variable "dashboard_oauth_config" {
-  type = "map"
+  type = map(string)
   default = {}
 }
 
 variable "helm_release" {
-  type = "map"
+  type = map(string)
   default = {}
 }

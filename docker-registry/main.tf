@@ -1,5 +1,5 @@
 provider "kubernetes" {
-  config_path = "${var.kubeconfig_filename}"
+  config_path = var.kubeconfig_filename
 }
 
 resource "tls_private_key" "portus-tls-key" {
@@ -8,8 +8,8 @@ resource "tls_private_key" "portus-tls-key" {
 }
 
 resource "tls_self_signed_cert" "portus-tls-cert" {
-  key_algorithm = "${tls_private_key.portus-tls-key.algorithm}"
-  private_key_pem = "${tls_private_key.portus-tls-key.private_key_pem}"
+  key_algorithm = tls_private_key.portus-tls-key.algorithm
+  private_key_pem = tls_private_key.portus-tls-key.private_key_pem
   subject {
     common_name = "registry.${var.cluster_domain}"
   }
@@ -89,7 +89,7 @@ resource "helm_release" "registry" {
   namespace = "tools"
   repository = "stable"
   chart = "docker-registry"
-  version = "${var.helm_release["docker-registry"]}"
+  version = var.helm_release["docker-registry"]
   values = ["${data.template_file.registry-values.rendered}"]
 }
 
@@ -121,12 +121,12 @@ resource "null_resource" "registry-portus-patch" {
 cat <<EOL | kubectl -n tools patch deployment docker-registry -p '${data.template_file.registry-portus-patch.rendered}'
 EOL
 EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
     }
   }
-  triggers {
-    build_number = "${helm_release.registry.version}"
+  triggers = {
+    build_number = helm_release.registry.version
   }
 }
 
@@ -135,78 +135,12 @@ resource "kubernetes_config_map" "portus-config" {
     name = "portus-config"
     namespace = "tools"
   }
-  data {
-    PORTUS_DB_HOST = "${var.registry_config["db_host"]}"
-    PORTUS_DB_DATABASE = "${var.registry_config["db_name"]}"
-    PORTUS_DB_USERNAME = "${var.registry_config["db_user"]}"
-    PORTUS_DB_PASSWORD = "${var.registry_config["db_password"]}"
-    config.yml = <<EOF
-machine_fqdn:
-  value: registry.${var.cluster_domain}
-check_ssl_usage:
-  enabled: false
-oauth:
-  github:
-    enabled: true
-    client_id: ${var.registry_config["oauth_client_id"]}
-    client_secret: ${var.registry_config["oauth_client_secret"]}
-    organization: ${var.registry_config["oauth_organization"]}
-    team: ${var.registry_config["oauth_team"]}
-registry:
-  jwt_expiration_time:
-    value: 3600
-  timeout:
-    value: 2
-  read_timeout:
-    value: 180
-  catalog_page:
-    value: 100
-delete:
-  enabled: true
-  contributors: true
-  garbage_collector:
-    enabled: true
-    older_than: 180
-    tag: ''
-background:
-  registry:
-    enabled: true
-  sync:
-    enabled: true
-    strategy: update-delete
-security:
-  clair:
-    server: ''
-    health_port: 6061
-    timeout: 900
-user_permission:
-  change_visibility:
-    enabled: true
-  create_team:
-    enabled: true
-  manage_team:
-    enabled: true
-  create_namespace:
-    enabled: true
-  manage_namespace:
-    enabled: true
-  create_webhook:
-    enabled: true
-  manage_webhook:
-    enabled: true
-  push_images:
-    policy: allow-teams
-anonymous_browsing:
-  enabled: true
-first_user_admin:
-  enabled: true
-signup:
-  enabled: false
-display_name:
-  enabled: true
-gravatar:
-  enabled: true
-EOF
+  data = {
+    PORTUS_DB_HOST = var.registry_config["db_host"]
+    PORTUS_DB_DATABASE = var.registry_config["db_name"]
+    PORTUS_DB_USERNAME = var.registry_config["db_user"]
+    PORTUS_DB_PASSWORD = var.registry_config["db_password"]
+    "config.yml" = templatefile("${path.module}/portus-config.tmpl", { cluster_domain = "${var.cluster_domain}", oauth_client_id = "${var.registry_config["oauth_client_id"]}", oauth_client_secret = "${var.registry_config["oauth_client_secret"]}", oauth_organization = "${var.registry_config["oauth_organization"]}", oauth_team = "${var.registry_config["oauth_team"]}" })
   }
 }
 
@@ -215,11 +149,11 @@ resource "kubernetes_secret" "portus-secret" {
     name = "portus-secrets"
     namespace = "tools"
   }
-  data {
-    PORTUS_CERT = "${tls_self_signed_cert.portus-tls-cert.cert_pem}"
-    PORTUS_KEY = "${tls_private_key.portus-tls-key.private_key_pem}"
-    PORTUS_PASSWORD = "${var.registry_config["default_password"]}"
-    PORTUS_SECRET_KEY_BASE = "${var.registry_config["secret_key_base"]}"
+  data = {
+    PORTUS_CERT = tls_self_signed_cert.portus-tls-cert.cert_pem
+    PORTUS_KEY = tls_private_key.portus-tls-key.private_key_pem
+    PORTUS_PASSWORD = var.registry_config["default_password"]
+    PORTUS_SECRET_KEY_BASE = var.registry_config["secret_key_base"]
   }
 }
 
@@ -237,12 +171,12 @@ cat <<EOL | kubectl -n tools apply -f -
 ${data.template_file.portus.rendered}
 EOL
 EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
     }
   }
-  triggers {
-    build_number = "${sha1(data.template_file.portus.rendered)}"
+  triggers = {
+    build_number = sha1(data.template_file.portus.rendered)
   }
 }
 
@@ -252,11 +186,11 @@ resource "kubernetes_service" "portus" {
     namespace = "tools"
   }
   spec {
-    selector {
+    selector = {
       app = "portus"
     }
     type = "ClusterIP"
-    port {
+    port  {
       name = "http"
       protocol = "TCP"
       port = 3000
@@ -318,12 +252,12 @@ cat <<EOL | kubectl -n tools apply -f -
 ${data.template_file.portus-ingress.rendered}
 EOL
 EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
     }
   }
-  triggers {
-    build_number = "${sha1(data.template_file.portus-ingress.rendered)}"
+  triggers = {
+    build_number = sha1(data.template_file.portus-ingress.rendered)
   }
 }
 
@@ -334,11 +268,11 @@ cat <<EOL | kubectl -n tools apply -f -
 ${data.template_file.docker-registry-ingress.rendered}
 EOL
 EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
     }
   }
-  triggers {
-    build_number = "${sha1(data.template_file.docker-registry-ingress.rendered)}"
+  triggers = {
+    build_number = sha1(data.template_file.docker-registry-ingress.rendered)
   }
 }

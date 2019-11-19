@@ -15,11 +15,11 @@ variable "kubeconfig_filename" {
 }
 
 variable "metric_config" {
-  type = "map"
+  type = map(string)
   default = {}
 }
 
 variable "helm_release" {
-  type = "map"
+  type = map(string)
   default = {}
 }

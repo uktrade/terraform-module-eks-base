@@ -1,5 +1,5 @@
 provider "kubernetes" {
-  config_path = "${var.kubeconfig_filename}"
+  config_path = var.kubeconfig_filename
 }
 
 data "template_file" "metrics-server-values" {
@@ -16,7 +16,7 @@ resource "helm_release" "metrics-server" {
   namespace = "kube-system"
   repository = "stable"
   chart = "metrics-server"
-  version = "${var.helm_release["metrics-server"]}"
+  version = var.helm_release["metrics-server"]
   values = ["${data.template_file.metrics-server-values.rendered}"]
 }
 
@@ -44,7 +44,7 @@ resource "helm_release" "oauth-proxy" {
   namespace = "kube-system"
   repository = "stable"
   chart = "oauth2-proxy"
-  version = "${var.helm_release["oauth2-proxy"]}"
+  version = var.helm_release["oauth2-proxy"]
   values = ["${data.template_file.oauth-proxy-values.rendered}"]
 }
 
@@ -75,7 +75,7 @@ resource "helm_release" "dashboard" {
   namespace = "kube-system"
   repository = "stable"
   chart = "kubernetes-dashboard"
-  version = "${var.helm_release["kubernetes-dashboard"]}"
+  version = var.helm_release["kubernetes-dashboard"]
   values = ["${data.template_file.dashboard-values.rendered}"]
 }
 
@@ -105,12 +105,12 @@ cat <<EOL | kubectl -n kube-system apply -f -
 ${data.template_file.dashboard-oauth.rendered}
 EOL
 EOF
-    environment {
-      KUBECONFIG = "${var.kubeconfig_filename}"
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
     }
   }
-  triggers {
-    build_number = "${sha1(data.template_file.dashboard-oauth.rendered)}"
+  triggers = {
+    build_number = sha1(data.template_file.dashboard-oauth.rendered)
   }
 }
 

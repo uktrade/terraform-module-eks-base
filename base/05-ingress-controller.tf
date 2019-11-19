@@ -1,6 +1,6 @@
 resource "aws_iam_role_policy" "nginx-ingress" {
   name = "${var.cluster_id}-node-ingress"
-  role = "${var.worker_iam_role_name}"
+  role = var.worker_iam_role_name
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -87,9 +87,9 @@ EOF
 resource "helm_release" "nginx-ingress" {
   name = "nginx-ingress"
   namespace = "kube-system"
-  repository = "${data.helm_repository.stable.metadata.0.name}"
+  repository = data.helm_repository.stable.metadata.0.name
   chart = "nginx-ingress"
-  version = "${var.helm_release["nginx-ingress"]}"
+  version = var.helm_release["nginx-ingress"]
   values = ["${data.template_file.nginx-ingress-values.rendered}"]
 }
 
@@ -133,8 +133,8 @@ EOF
 resource "helm_release" "nginx-ingress-external" {
   name = "nginx-ingress-external"
   namespace = "kube-system"
-  repository = "${data.helm_repository.stable.metadata.0.name}"
+  repository = data.helm_repository.stable.metadata.0.name
   chart = "nginx-ingress"
-  version = "${var.helm_release["nginx-ingress"]}"
+  version = var.helm_release["nginx-ingress"]
   values = ["${data.template_file.nginx-ingress-external-values.rendered}"]
 }

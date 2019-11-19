@@ -1,5 +1,5 @@
 provider "kubernetes" {
-  config_path = "${var.kubeconfig_filename}"
+  config_path = var.kubeconfig_filename
 }
 
 resource "kubernetes_namespace" "logging" {
@@ -28,6 +28,6 @@ resource "helm_release" "fluentd" {
   namespace = "logging"
   repository = "incubator"
   chart = "fluentd-cloudwatch"
-  version = "${var.helm_release["fluentd-cloudwatch"]}"
+  version = var.helm_release["fluentd-cloudwatch"]
   values = ["${data.template_file.fluentd.rendered}", "${file("${path.module}/fluentd.conf")}"]
 }
