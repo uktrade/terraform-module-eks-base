@@ -1,10 +1,6 @@
-#
-# AWS CNI 1.5.4 bug: https://github.com/aws/amazon-vpc-cni-k8s/issues/641
-#
-
 locals {
   amazon-k8s-cni-release = "1.5"
-  amazon-k8s-cni-version = "1.5.3"
+  amazon-k8s-cni-version = "1.5.5"
   amazon-k8s-cni-url = "https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/v${local.amazon-k8s-cni-version}/config/v${local.amazon-k8s-cni-release}"
 }
 
