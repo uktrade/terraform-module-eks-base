@@ -1,12 +1,13 @@
 locals {
   cloudwatch_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/kubernetes-monitoring"
   statsd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/statsd"
-  local_temp = "${path.root}/.terraform/temp"
 }
 
-module "cloudwatch-ns" {
-  source  = "matti/outputs/shell"
-  command = "curl -Lfs ${local.cloudwatch_url}/cloudwatch-namespace.yaml"
+data "external" "cloudwatch-ns" {
+  program = ["bash", "${path.module}/sha1-http.sh"]
+  query = {
+    url = "${local.cloudwatch_url}/cloudwatch-namespace.yaml"
+  }
 }
 
 resource "null_resource" "cloudwatch-ns" {
@@ -17,13 +18,15 @@ resource "null_resource" "cloudwatch-ns" {
     }
   }
   triggers = {
-    build_number = sha1(module.cloudwatch-ns.stdout)
+    build_number = data.external.cloudwatch-ns.result.sha1
   }
 }
 
-module "cloudwatch-config" {
-  source  = "matti/outputs/shell"
-  command = "curl -Lfs ${local.cloudwatch_url}/cwagent-configmap.yaml"
+data "external" "cloudwatch-config" {
+  program = ["bash", "${path.module}/sha1-http.sh"]
+  query = {
+    url = "${local.cloudwatch_url}/cwagent-configmap.yaml"
+  }
 }
 
 resource "null_resource" "cloudwatch-config" {
@@ -34,7 +37,7 @@ resource "null_resource" "cloudwatch-config" {
     }
   }
   triggers = {
-    build_number = sha1(module.cloudwatch-config.stdout)
+    build_number = data.external.cloudwatch-config.result.sha1
   }
   depends_on = [null_resource.cloudwatch-ns]
 }
@@ -68,14 +71,16 @@ EOF
     }
   }
   triggers = {
-    build_number = sha1(module.cloudwatch-config.stdout)
+    build_number = data.external.cloudwatch-config.result.sha1
   }
   depends_on = [null_resource.cloudwatch-ns, null_resource.cloudwatch-config]
 }
 
-module "cloudwatch-sa" {
-  source  = "matti/outputs/shell"
-  command = "curl -Lfs ${local.cloudwatch_url}/cloudwatch-serviceaccount.yaml"
+data "external" "cloudwatch-sa" {
+  program = ["bash", "${path.module}/sha1-http.sh"]
+  query = {
+    url = "${local.cloudwatch_url}/cloudwatch-serviceaccount.yaml"
+  }
 }
 
 resource "null_resource" "cloudwatch-sa" {
@@ -86,14 +91,16 @@ resource "null_resource" "cloudwatch-sa" {
     }
   }
   triggers = {
-    build_number = sha1(module.cloudwatch-sa.stdout)
+    build_number = data.external.cloudwatch-sa.result.sha1
   }
   depends_on = [null_resource.cloudwatch-ns]
 }
 
-module "cloudwatch-daemonset" {
-  source  = "matti/outputs/shell"
-  command = "curl -Lfs ${local.cloudwatch_url}/cwagent-daemonset.yaml"
+data "external" "cloudwatch-daemonset" {
+  program = ["bash", "${path.module}/sha1-http.sh"]
+  query = {
+    url = "${local.cloudwatch_url}/cwagent-daemonset.yaml"
+  }
 }
 
 resource "null_resource" "cloudwatch-daemonset" {
@@ -104,14 +111,16 @@ resource "null_resource" "cloudwatch-daemonset" {
     }
   }
   triggers = {
-    build_number = sha1(module.cloudwatch-daemonset.stdout)
+    build_number = data.external.cloudwatch-daemonset.result.sha1
   }
   depends_on = [null_resource.cloudwatch-ns, null_resource.cloudwatch-sa]
 }
 
-module "cloudwatch-statsd-config" {
-  source  = "matti/outputs/shell"
-  command = "curl -Lfs ${local.cloudwatch_url}/cwagent-statsd-configmap.yaml"
+data "external" "cloudwatch-statsd-config" {
+  program = ["bash", "${path.module}/sha1-http.sh"]
+  query = {
+    url = "${local.statsd_url}/cwagent-statsd-configmap.yaml"
+  }
 }
 
 resource "null_resource" "cloudwatch-statsd-config" {
@@ -122,14 +131,16 @@ resource "null_resource" "cloudwatch-statsd-config" {
     }
   }
   triggers = {
-    build_number = sha1(module.cloudwatch-statsd-config.stdout)
+    build_number = data.external.cloudwatch-statsd-config.result.sha1
   }
   depends_on = [null_resource.cloudwatch-ns]
 }
 
-module "cloudwatch-statsd-daemonset" {
-  source  = "matti/outputs/shell"
-  command = "curl -Lfs ${local.cloudwatch_url}/cwagent-statsd-daemonset.yaml"
+data "external" "cloudwatch-statsd-daemonset" {
+  program = ["bash", "${path.module}/sha1-http.sh"]
+  query = {
+    url = "${local.statsd_url}/cwagent-statsd-daemonset.yaml"
+  }
 }
 
 resource "null_resource" "cloudwatch-statsd-daemonset" {
@@ -140,7 +151,7 @@ resource "null_resource" "cloudwatch-statsd-daemonset" {
     }
   }
   triggers = {
-    build_number = sha1(module.cloudwatch-statsd-daemonset.stdout)
+    build_number = data.external.cloudwatch-statsd-daemonset.result.sha1
   }
   depends_on = [null_resource.cloudwatch-ns]
 }
