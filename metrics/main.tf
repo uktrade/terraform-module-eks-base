@@ -16,6 +16,7 @@ prometheus:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/configuration-snippet: |
         rewrite ^/$ /targets last;
     hosts:
@@ -28,6 +29,7 @@ alertmanager:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     hosts:
       - "alert.${var.cluster_domain}"
 grafana:
@@ -35,6 +37,7 @@ grafana:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     hosts:
       - "metric.${var.cluster_domain}"
 EOF

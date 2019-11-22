@@ -62,7 +62,9 @@ ingress:
   hosts:
     - "console.${var.cluster_domain}"
   annotations:
+    kubernetes.io/ingress.class: nginx
     kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
 nodeSelector:
@@ -86,6 +88,9 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: dashboard-oauth2
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   rules:
   - host: "console.${var.cluster_domain}"

@@ -205,6 +205,8 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /console/\$$request_uri
   labels:
     app: portus
@@ -229,6 +231,9 @@ metadata:
   labels:
     app: portus
   name: docker-registry
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   rules:
   - host: registry.${var.cluster_domain}
