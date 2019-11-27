@@ -5,6 +5,7 @@ module "eks-base" {
   worker_iam_role_name = var.worker_iam_role_name
   kubeconfig_filename  = var.kubeconfig_filename
   helm_release         = var.helm_release
+  eks_config           = var.eks_config
 }
 
 module "eks-dashboard" {

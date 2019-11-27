@@ -16,6 +16,11 @@ variable "kubeconfig_filename" {
   default = ""
 }
 
+variable "eks_config" {
+  type    = map(string)
+  default = {}
+}
+
 variable "helm_release" {
   type = map(string)
   default = {}

@@ -1,23 +1,6 @@
 locals {
-  amazon-k8s-cni-release = "1.5"
-  amazon-k8s-cni-version = "1.5.5"
-  amazon-k8s-cni-url = "https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/v${local.amazon-k8s-cni-version}/config/v${local.amazon-k8s-cni-release}"
-}
-
-data "http" "k8s-cni" {
-  url = "${local.amazon-k8s-cni-url}/aws-k8s-cni.yaml"
-}
-
-resource "null_resource" "k8s-cni" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f ${local.amazon-k8s-cni-url}/aws-k8s-cni.yaml"
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
-    }
-  }
-  triggers = {
-    build_number = sha1(data.http.k8s-cni.body)
-  }
+  amazon-k8s-cni-release = regex("[0-9]{1,2}\\.[0-9]{1,2}", local.eks[var.eks_config["version"]]["cni"])
+  amazon-k8s-cni-url = "https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/v${local.eks[var.eks_config["version"]]["cni"]}/config/v${local.amazon-k8s-cni-release}"
 }
 
 data "http" "k8s-calico" {
@@ -33,6 +16,7 @@ resource "null_resource" "k8s-calico" {
   }
   triggers = {
     build_number = sha1(data.http.k8s-calico.body)
+    release = local.amazon-k8s-cni-release
   }
   depends_on = [null_resource.k8s-cni]
 }
@@ -50,6 +34,7 @@ resource "null_resource" "k8s-calico-metrics" {
   }
   triggers = {
     build_number = sha1(data.http.k8s-calico-metrics.body)
+    release = local.amazon-k8s-cni-release
   }
   depends_on = [null_resource.k8s-calico]
 }

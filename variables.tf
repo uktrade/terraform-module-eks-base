@@ -23,6 +23,11 @@ variable "dashboard_oauth_config" {
   default = {}
 }
 
+variable "eks_config" {
+  type    = map(string)
+  default = {}
+}
+
 variable "registry_config" {
   type    = map(string)
   default = {}
@@ -42,4 +47,3 @@ variable "helm_release" {
   type    = map(string)
   default = {}
 }
-
