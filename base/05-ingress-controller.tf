@@ -91,6 +91,7 @@ resource "helm_release" "nginx-ingress" {
   chart = "nginx-ingress"
   version = var.helm_release["nginx-ingress"]
   values = ["${data.template_file.nginx-ingress-values.rendered}"]
+  depends_on = [kubernetes_config_map.tcp-services, kubernetes_config_map.udp-services]
 }
 
 data "template_file" "nginx-ingress-external-values" {
@@ -137,4 +138,5 @@ resource "helm_release" "nginx-ingress-external" {
   chart = "nginx-ingress"
   version = var.helm_release["nginx-ingress"]
   values = ["${data.template_file.nginx-ingress-external-values.rendered}"]
+  depends_on = [kubernetes_config_map.tcp-services, kubernetes_config_map.udp-services]
 }

@@ -30,4 +30,5 @@ resource "helm_release" "fluentd" {
   chart = "fluentd-cloudwatch"
   version = var.helm_release["fluentd-cloudwatch"]
   values = ["${data.template_file.fluentd.rendered}", "${file("${path.module}/fluentd.conf")}"]
+  depends_on = [kubernetes_namespace.logging]
 }

@@ -60,4 +60,5 @@ resource "helm_release" "external-dns" {
   chart = "external-dns"
   version = var.helm_release["external-dns"]
   values = ["${data.template_file.external-dns-values.rendered}"]
+  depends_on = [aws_iam_role_policy.eks-route53]
 }

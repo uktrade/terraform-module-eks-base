@@ -34,6 +34,7 @@ resource "null_resource" "k8s-calico" {
   triggers = {
     build_number = sha1(data.http.k8s-calico.body)
   }
+  depends_on = [null_resource.k8s-cni]
 }
 
 data "http" "k8s-calico-metrics" {
@@ -50,4 +51,5 @@ resource "null_resource" "k8s-calico-metrics" {
   triggers = {
     build_number = sha1(data.http.k8s-calico-metrics.body)
   }
+  depends_on = [null_resource.k8s-calico]
 }

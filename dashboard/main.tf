@@ -48,6 +48,22 @@ resource "helm_release" "oauth-proxy" {
   values = ["${data.template_file.oauth-proxy-values.rendered}"]
 }
 
+resource "kubernetes_cluster_role_binding" "dashboard-admin" {
+  metadata {
+    name = "kubernetes-dashboard"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind = "ClusterRole"
+    name = "cluster-admin"
+  }
+  subject {
+    kind = "ServiceAccount"
+    name = "kubernetes-dashboard"
+    namespace = "kube-system"
+  }
+}
+
 data "template_file" "dashboard-values" {
   template = <<EOF
 enableInsecureLogin: true
@@ -79,6 +95,7 @@ resource "helm_release" "dashboard" {
   chart = "kubernetes-dashboard"
   version = var.helm_release["kubernetes-dashboard"]
   values = ["${data.template_file.dashboard-values.rendered}"]
+  depends_on = [kubernetes_cluster_role_binding.dashboard-admin]
 }
 
 # Terraform has no Ingress resource support yet
@@ -117,6 +134,7 @@ EOF
   triggers = {
     build_number = sha1(data.template_file.dashboard-oauth.rendered)
   }
+  depends_on = [helm_release.metrics-server, helm_release.oauth-proxy, helm_release.dashboard]
 }
 
 resource "kubernetes_service_account" "eks-admin" {
@@ -138,22 +156,6 @@ resource "kubernetes_cluster_role_binding" "eks-admin" {
   subject {
     kind = "ServiceAccount"
     name = "eks-admin"
-    namespace = "kube-system"
-  }
-}
-
-resource "kubernetes_cluster_role_binding" "dashboard-admin" {
-  metadata {
-    name = "kubernetes-dashboard"
-  }
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind = "ClusterRole"
-    name = "cluster-admin"
-  }
-  subject {
-    kind = "ServiceAccount"
-    name = "kubernetes-dashboard"
     namespace = "kube-system"
   }
 }

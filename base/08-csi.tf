@@ -34,4 +34,5 @@ EOF
   triggers = {
     build_number = sha1(data.template_file.aws-ebs-storage-class.rendered)
   }
+  depends_on = [helm_release.aws-ebs-csi]
 }

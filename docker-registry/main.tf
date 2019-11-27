@@ -91,6 +91,7 @@ resource "helm_release" "registry" {
   chart = "docker-registry"
   version = var.helm_release["docker-registry"]
   values = ["${data.template_file.registry-values.rendered}"]
+  depends_on = [tls_self_signed_cert.portus-tls-cert]
 }
 
 data "template_file" "registry-portus-patch" {
@@ -113,6 +114,7 @@ spec:
           mountPath: /secrets
           readOnly: true
 EOF
+  depends_on = [helm_release.registry]
 }
 
 resource "null_resource" "registry-portus-patch" {
@@ -128,6 +130,7 @@ EOF
   triggers = {
     build_number = helm_release.registry.version
   }
+  depends_on = [helm_release.registry]
 }
 
 resource "kubernetes_config_map" "portus-config" {
@@ -162,6 +165,7 @@ data "template_file" "portus" {
   vars = {
     version = "${var.registry_config["portus_version"]}"
   }
+  depends_on = [kubernetes_secret.portus-secret]
 }
 
 resource "null_resource" "portus" {
@@ -178,6 +182,7 @@ EOF
   triggers = {
     build_number = sha1(data.template_file.portus.rendered)
   }
+  depends_on = [kubernetes_secret.portus-secret]
 }
 
 resource "kubernetes_service" "portus" {
