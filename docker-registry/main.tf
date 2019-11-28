@@ -24,6 +24,16 @@ resource "tls_self_signed_cert" "portus-tls-cert" {
   ]
 }
 
+resource "kubernetes_secret" "docker-registry-cert" {
+  metadata {
+    name = "docker-registry-cert"
+    namespace = "tools"
+  }
+  data = {
+    cert.pem = tls_self_signed_cert.portus-tls-cert.cert_pem
+  }
+}
+
 data "template_file" "registry-values" {
   template = <<EOF
 storage: s3
@@ -32,6 +42,7 @@ s3:
   bucket: ${var.registry_config["s3_bucket"]}
   encrypt: true
   secure: true
+tlsSecretName: docker-registry-cert
 secrets:
   s3:
     accessKey: ${var.registry_config["s3_accesskey"]}
@@ -71,7 +82,7 @@ configData:
       realm: https://registry.${var.cluster_domain}/console/v2/token
       service: registry.${var.cluster_domain}
       issuer: registry.${var.cluster_domain}
-      rootcertbundle: /secrets/cert.pem
+      rootcertbundle: /etc/ssl/docker/cert.pem
   notifications:
     endpoints:
       - name: portus
@@ -92,45 +103,6 @@ resource "helm_release" "registry" {
   version = var.helm_release["docker-registry"]
   values = ["${data.template_file.registry-values.rendered}"]
   depends_on = [tls_self_signed_cert.portus-tls-cert]
-}
-
-data "template_file" "registry-portus-patch" {
-  template = <<EOF
-spec:
-  template:
-    spec:
-      volumes:
-      - name: ca-bundle
-        secret:
-          secretName: portus-secrets
-          defaultMode: 420
-          items:
-          - key: PORTUS_CERT
-            path: cert.pem
-      containers:
-      - name: docker-registry
-        volumeMounts:
-        - name: ca-bundle
-          mountPath: /secrets
-          readOnly: true
-EOF
-  depends_on = [helm_release.registry]
-}
-
-resource "null_resource" "registry-portus-patch" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n tools patch deployment docker-registry -p '${data.template_file.registry-portus-patch.rendered}'
-EOL
-EOF
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
-    }
-  }
-  triggers = {
-    build_number = helm_release.registry.version
-  }
-  depends_on = [helm_release.registry]
 }
 
 resource "kubernetes_config_map" "portus-config" {
