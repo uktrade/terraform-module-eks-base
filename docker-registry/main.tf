@@ -82,7 +82,6 @@ configData:
       realm: https://registry.${var.cluster_domain}/console/v2/token
       service: registry.${var.cluster_domain}
       issuer: registry.${var.cluster_domain}
-      rootcertbundle: /etc/ssl/docker/cert.pem
   notifications:
     endpoints:
       - name: portus
