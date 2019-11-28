@@ -1,5 +1,5 @@
 provider "kubernetes" {
-  config_path = module.eks.kubeconfig_filename
+  config_path = var.kubeconfig_filename
 }
 
 module "eks-base" {
