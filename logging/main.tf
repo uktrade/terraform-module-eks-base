@@ -1,7 +1,3 @@
-provider "kubernetes" {
-  config_path = var.kubeconfig_filename
-}
-
 resource "kubernetes_namespace" "logging" {
   metadata {
     name = "logging"

@@ -1,7 +1,3 @@
-provider "kubernetes" {
-  config_path = var.kubeconfig_filename
-}
-
 data "template_file" "prometheus-values" {
   template = <<EOF
 prometheusOperator:

@@ -1,7 +1,3 @@
-provider "kubernetes" {
-  config_path = var.kubeconfig_filename
-}
-
 resource "kubernetes_service_account" "tiller" {
   metadata {
     name = "tiller"
