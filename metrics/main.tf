@@ -33,6 +33,15 @@ alertmanager:
     hosts:
       - "alert.${var.cluster_domain}"
 grafana:
+  env:
+    GF_SERVER_DOMAIN: "metric.${var.cluster_domain}"
+    GF_SERVER_ROOT_URL: "https://metric.${var.cluster_domain}/"
+    GF_AUTH_GITHUB_ENABLED: "true"
+    GF_AUTH_GITHUB_ALLOW_SIGN_UP: "true"
+    GF_AUTH_GITHUB_CLIENT_ID: "${var.metric_config["oauth_client_id"]}"
+    GF_AUTH_GITHUB_CLIENT_SECRET: "${var.metric_config["oauth_client_secret"]}"
+    GF_AUTH_GITHUB_ALLOWED_ORGANIZATIONS: "${var.metric_config["oauth_organization"]}"
+    GF_AUTH_GITHUB_TEAM_IDS: "${var.metric_config["oauth_team"]}"
   ingress:
     enabled: true
     annotations:
@@ -40,6 +49,8 @@ grafana:
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     hosts:
       - "metric.${var.cluster_domain}"
+  nodeSelector:
+    role: worker
 EOF
 }
 
@@ -50,50 +61,4 @@ resource "helm_release" "prometheus" {
   chart = "prometheus-operator"
   version = var.helm_release["prometheus-operator"]
   values = ["${data.template_file.prometheus-values.rendered}"]
-}
-
-data "template_file" "grafana-oauth" {
-  template = <<EOF
-spec:
-  template:
-    spec:
-      nodeSelector:
-        role: worker
-      containers:
-        - name: grafana
-          env:
-            - name: GF_SERVER_DOMAIN
-              value: "metric.${var.cluster_domain}"
-            - name: GF_SERVER_ROOT_URL
-              value: "https://metric.${var.cluster_domain}/"
-            - name: GF_AUTH_GITHUB_ENABLED
-              value: "true"
-            - name: GF_AUTH_GITHUB_ALLOW_SIGN_UP
-              value: "true"
-            - name: GF_AUTH_GITHUB_CLIENT_ID
-              value: "${var.metric_config["oauth_client_id"]}"
-            - name: GF_AUTH_GITHUB_CLIENT_SECRET
-              value: "${var.metric_config["oauth_client_secret"]}"
-            - name: GF_AUTH_GITHUB_ALLOWED_ORGANIZATIONS
-              value: "${var.metric_config["oauth_organization"]}"
-            - name: GF_AUTH_GITHUB_TEAM_IDS
-              value: "${var.metric_config["oauth_team"]}"
-EOF
-}
-
-resource "null_resource" "grafana-oauth" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n monitoring patch deployment prometheus-grafana -p '${data.template_file.grafana-oauth.rendered}'
-EOL
-EOF
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
-    }
-  }
-  triggers = {
-    helm = helm_release.prometheus.version
-    patch = sha1(data.template_file.grafana-oauth.rendered)
-  }
-  depends_on = [helm_release.prometheus]
 }
