@@ -31,6 +31,7 @@ resource "kubernetes_secret" "docker-registry-cert" {
   }
   data = {
     "tls.crt" = tls_self_signed_cert.portus-tls-cert.cert_pem
+    "tls.key" = tls_private_key.portus-tls-key.private_key_pem
   }
 }
 
