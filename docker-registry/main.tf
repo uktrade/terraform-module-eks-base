@@ -2,6 +2,12 @@ provider "kubernetes" {
   config_path = var.kubeconfig_filename
 }
 
+resource "kubernetes_namespace" {
+  metadata {
+    name = "tools"
+  }
+}
+
 resource "tls_private_key" "portus-tls-key" {
   algorithm = "RSA"
   rsa_bits = 2048
