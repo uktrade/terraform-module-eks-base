@@ -30,7 +30,7 @@ resource "kubernetes_secret" "docker-registry-cert" {
     namespace = "tools"
   }
   data = {
-    cert.pem = tls_self_signed_cert.portus-tls-cert.cert_pem
+    "cert.pem" = tls_self_signed_cert.portus-tls-cert.cert_pem
   }
 }
 
