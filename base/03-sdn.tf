@@ -1,6 +1,6 @@
 locals {
-  amazon-k8s-cni-release = regex("[0-9]{1,2}\\.[0-9]{1,2}", local.eks[var.eks_config["version"]]["cni"])
-  amazon-k8s-cni-url = "https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/v${local.eks[var.eks_config["version"]]["cni"]}/config/v${local.amazon-k8s-cni-release}"
+  amazon-k8s-cni-release = regex("[0-9]{1,2}\\.[0-9]{1,2}", local.eks["cni"])
+  amazon-k8s-cni-url = "https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/v${local.eks["cni"]}/config/v${local.amazon-k8s-cni-release}"
 }
 
 data "http" "k8s-calico" {

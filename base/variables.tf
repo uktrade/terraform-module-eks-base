@@ -17,7 +17,7 @@ variable "kubeconfig_filename" {
 }
 
 variable "eks_config" {
-  type    = map(string)
+  type    = any
   default = {}
 }
 

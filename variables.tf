@@ -24,7 +24,7 @@ variable "dashboard_oauth_config" {
 }
 
 variable "eks_config" {
-  type    = map(string)
+  type    = any
   default = {}
 }
 
