@@ -1,3 +1,7 @@
+provider "kubernetes" {
+  config_path = module.eks.kubeconfig_filename
+}
+
 module "eks-base" {
   source               = "github.com/uktrade/terraform-module-eks-base//base"
   cluster_id           = var.cluster_id
