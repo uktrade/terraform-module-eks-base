@@ -35,6 +35,7 @@ resource "kubernetes_secret" "docker-registry-cert" {
     "tls.crt" = tls_self_signed_cert.portus-tls-cert.cert_pem
     "tls.key" = tls_private_key.portus-tls-key.private_key_pem
   }
+  depends_on = [kubernetes_namespace.tools]
 }
 
 data "template_file" "registry-values" {
@@ -105,7 +106,7 @@ resource "helm_release" "registry" {
   chart = "docker-registry"
   version = var.helm_release["docker-registry"]
   values = ["${data.template_file.registry-values.rendered}"]
-  depends_on = [tls_self_signed_cert.portus-tls-cert]
+  depends_on = [kubernetes_namespace.tools, tls_self_signed_cert.portus-tls-cert]
 }
 
 resource "kubernetes_config_map" "portus-config" {
@@ -120,6 +121,7 @@ resource "kubernetes_config_map" "portus-config" {
     PORTUS_DB_PASSWORD = var.registry_config["db_password"]
     "config.yml" = templatefile("${path.module}/portus-config.tmpl", { cluster_domain = "${var.cluster_domain}", oauth_client_id = "${var.registry_config["oauth_client_id"]}", oauth_client_secret = "${var.registry_config["oauth_client_secret"]}", oauth_organization = "${var.registry_config["oauth_organization"]}", oauth_team = "${var.registry_config["oauth_team"]}" })
   }
+  depends_on = [kubernetes_namespace.tools]
 }
 
 resource "kubernetes_secret" "portus-secret" {
@@ -133,6 +135,7 @@ resource "kubernetes_secret" "portus-secret" {
     PORTUS_PASSWORD = var.registry_config["default_password"]
     PORTUS_SECRET_KEY_BASE = var.registry_config["secret_key_base"]
   }
+  depends_on = [kubernetes_namespace.tools]
 }
 
 data "template_file" "portus" {
@@ -140,7 +143,7 @@ data "template_file" "portus" {
   vars = {
     version = "${var.registry_config["portus_version"]}"
   }
-  depends_on = [kubernetes_secret.portus-secret]
+  depends_on = [kubernetes_namespace.tools, kubernetes_secret.portus-secret]
 }
 
 resource "null_resource" "portus" {
@@ -157,7 +160,7 @@ EOF
   triggers = {
     build_number = sha1(data.template_file.portus.rendered)
   }
-  depends_on = [kubernetes_secret.portus-secret]
+  depends_on = [kubernetes_namespace.tools, kubernetes_secret.portus-secret]
 }
 
 resource "kubernetes_service" "portus" {
@@ -177,6 +180,7 @@ resource "kubernetes_service" "portus" {
       target_port = 3000
     }
   }
+  depends_on = [kubernetes_namespace.tools]
 }
 
 data "template_file" "portus-ingress" {
@@ -244,6 +248,7 @@ EOF
   triggers = {
     build_number = sha1(data.template_file.portus-ingress.rendered)
   }
+  depends_on = [kubernetes_namespace.tools]
 }
 
 resource "null_resource" "docker-registry-ingress" {
@@ -260,4 +265,5 @@ EOF
   triggers = {
     build_number = sha1(data.template_file.docker-registry-ingress.rendered)
   }
+  depends_on = [kubernetes_namespace.tools]
 }
