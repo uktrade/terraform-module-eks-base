@@ -9,30 +9,10 @@ resource "helm_release" "aws-ebs-csi" {
   version = var.helm_release["aws-ebs-csi-driver"]
 }
 
-data "template_file" "aws-ebs-storage-class" {
-  template = <<EOF
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: ebs
-provisioner: ebs.csi.aws.com
-volumeBindingMode: WaitForFirstConsumer
-EOF
-}
-
-resource "null_resource" "aws-ebs-storage-class" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.aws-ebs-storage-class.rendered}
-EOL
-EOF
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
-    }
+resource "kubernetes_storage_class" "aws-ebs-storage-class" {
+  metadata {
+    name = "ebs"
   }
-  triggers = {
-    build_number = sha1(data.template_file.aws-ebs-storage-class.rendered)
-  }
-  depends_on = [helm_release.aws-ebs-csi]
+  storage_provisioner = "ebs.csi.aws.com"
+  volume_binding_mode = "WaitForFirstConsumer"
 }

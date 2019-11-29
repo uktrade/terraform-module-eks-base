@@ -183,87 +183,66 @@ resource "kubernetes_service" "portus" {
   depends_on = [kubernetes_namespace.tools]
 }
 
-data "template_file" "portus-ingress" {
-  template = <<EOF
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /console/\$$request_uri
-  labels:
-    app: portus
-  name: portus
-spec:
-  rules:
-  - host: registry.${var.cluster_domain}
-    http:
-      paths:
-      - backend:
-          serviceName: portus
-          servicePort: 3000
-        path: /(assets|favicon)/
-EOF
-}
-
-data "template_file" "docker-registry-ingress" {
-  template = <<EOF
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  labels:
-    app: portus
-  name: docker-registry
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-spec:
-  rules:
-  - host: registry.${var.cluster_domain}
-    http:
-      paths:
-      - backend:
-          serviceName: docker-registry
-          servicePort: 5000
-        path: /
-      - backend:
-          serviceName: portus
-          servicePort: 3000
-        path: /console/
-EOF
-}
-
-resource "null_resource" "portus-ingress" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n tools apply -f -
-${data.template_file.portus-ingress.rendered}
-EOL
-EOF
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
+resource "kubernetes_ingress" "portus-ingress" {
+  metadata {
+    name = "portus"
+    namespace = "tools"
+    labels = {
+      app = "portus"
+    }
+    annotations = {
+      kubernetes.io/ingress.class = "nginx"
+      nginx.ingress.kubernetes.io/force-ssl-redirect = "true"
+      nginx.ingress.kubernetes.io/rewrite-target = "/console/\$$request_uri"
     }
   }
-  triggers = {
-    build_number = sha1(data.template_file.portus-ingress.rendered)
-  }
-  depends_on = [kubernetes_namespace.tools]
-}
-
-resource "null_resource" "docker-registry-ingress" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n tools apply -f -
-${data.template_file.docker-registry-ingress.rendered}
-EOL
-EOF
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
+  spec {
+    rule {
+      host = "registry.${var.cluster_domain}"
+      http {
+        path {
+          path = "/(assets|favicon)/"
+          backend {
+            service_name = "portus"
+            service_port = 3000
+          }
+        }
+      }
     }
   }
-  triggers = {
-    build_number = sha1(data.template_file.docker-registry-ingress.rendered)
+}
+
+resource "kubernetes_ingress" "docker-registry-ingress" {
+  metadata {
+    name = "docker-registry"
+    namespace = "tools"
+    labels = {
+      app = "docker-registry"
+    }
+    annotations = {
+      kubernetes.io/ingress.class = "nginx"
+      nginx.ingress.kubernetes.io/force-ssl-redirect = "true"
+    }
   }
-  depends_on = [kubernetes_namespace.tools]
+  spec {
+    rule {
+      host = "registry.${var.cluster_domain}"
+      http {
+        path {
+          path = "/"
+          backend {
+            service_name = "docker-registry"
+            service_port = 5000
+          }
+        }
+        path {
+          path = "/console/"
+          backend {
+            service_name = "portus"
+            service_port = 3000
+          }
+        }
+      }
+    }
+  }
 }
