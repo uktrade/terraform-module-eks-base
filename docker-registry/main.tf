@@ -191,9 +191,9 @@ resource "kubernetes_ingress" "portus-ingress" {
       app = "portus"
     }
     annotations = {
-      kubernetes.io/ingress.class = "nginx"
-      nginx.ingress.kubernetes.io/force-ssl-redirect = "true"
-      nginx.ingress.kubernetes.io/rewrite-target = "/console/\$$request_uri"
+      "kubernetes.io/ingress.class" = "nginx"
+      "nginx.ingress.kubernetes.io/force-ssl-redirect" = "true"
+      "nginx.ingress.kubernetes.io/rewrite-target" = "/console/$request_uri"
     }
   }
   spec {
@@ -220,8 +220,8 @@ resource "kubernetes_ingress" "docker-registry-ingress" {
       app = "docker-registry"
     }
     annotations = {
-      kubernetes.io/ingress.class = "nginx"
-      nginx.ingress.kubernetes.io/force-ssl-redirect = "true"
+      "kubernetes.io/ingress.class" = "nginx"
+      "nginx.ingress.kubernetes.io/force-ssl-redirect" = "true"
     }
   }
   spec {
