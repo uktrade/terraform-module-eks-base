@@ -30,6 +30,14 @@ config:
     cookie_refresh = 60
     pass_access_token = true
     upstream = "file:///dev/null"
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts:
+    - "console.${var.cluster_domain}"
+  path: /oauth2
 nodeSelector:
   role: worker
 EOF
@@ -92,45 +100,6 @@ resource "helm_release" "dashboard" {
   version = var.helm_release["kubernetes-dashboard"]
   values = ["${data.template_file.dashboard-values.rendered}"]
   depends_on = [kubernetes_cluster_role_binding.dashboard-admin]
-}
-
-# Terraform has no Ingress resource support yet
-data "template_file" "dashboard-oauth" {
-  template = <<EOF
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: dashboard-oauth2
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-spec:
-  rules:
-  - host: "console.${var.cluster_domain}"
-    http:
-      paths:
-      - path: /oauth2
-        backend:
-          serviceName: oauth2-proxy
-          servicePort: 80
-EOF
-}
-
-resource "null_resource" "dashboard-oauth" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n kube-system apply -f -
-${data.template_file.dashboard-oauth.rendered}
-EOL
-EOF
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
-    }
-  }
-  triggers = {
-    build_number = sha1(data.template_file.dashboard-oauth.rendered)
-  }
-  depends_on = [helm_release.metrics-server, helm_release.oauth-proxy, helm_release.dashboard]
 }
 
 resource "kubernetes_service_account" "eks-admin" {
