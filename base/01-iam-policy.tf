@@ -74,3 +74,40 @@ resource "aws_iam_role_policy" "k8s-csi" {
 }
 EOF
 }
+
+resource "aws_iam_role_policy" "k8s-logs" {
+  name = "${var.cluster_id}-k8s-logs"
+  role = var.worker_iam_role_name
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:ListTagsLogGroup",
+        "logs:DescribeQueries",
+        "logs:GetLogRecord",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:DescribeSubscriptionFilters",
+        "logs:StartQuery",
+        "logs:DescribeMetricFilters",
+        "logs:StopQuery",
+        "logs:TestMetricFilter",
+        "logs:GetLogDelivery",
+        "logs:ListLogDeliveries",
+        "logs:DescribeExportTasks",
+        "logs:GetQueryResults",
+        "logs:GetLogEvents",
+        "logs:FilterLogEvents",
+        "logs:GetLogGroupFields",
+        "logs:DescribeResourcePolicies",
+        "logs:DescribeDestinations"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
