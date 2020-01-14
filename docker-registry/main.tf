@@ -158,7 +158,7 @@ EOF
     }
   }
   triggers = {
-    build_number = md5(data.template_file.portus.rendered)
+    build_number = "${sha1(file("${path.module}/portus-dc.yaml"))}"
     version = "${var.registry_config["portus_version"]}"
   }
   depends_on = [kubernetes_namespace.tools, kubernetes_secret.portus-secret]
