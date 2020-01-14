@@ -138,19 +138,11 @@ resource "kubernetes_secret" "portus-secret" {
   depends_on = [kubernetes_namespace.tools]
 }
 
-data "template_file" "portus" {
-  template = "${file("${path.module}/portus-dc.yaml")}"
-  vars = {
-    version = "${var.registry_config["portus_version"]}"
-  }
-  depends_on = [kubernetes_namespace.tools, kubernetes_secret.portus-secret]
-}
-
 resource "null_resource" "portus" {
   provisioner "local-exec" {
     command = <<EOF
 cat <<EOL | kubectl -n tools apply -f -
-${data.template_file.portus.rendered}
+${templatefile("${path.module}/portus-dc.yaml", {version = var.registry_config["portus_version"]})}
 EOL
 EOF
     environment = {
