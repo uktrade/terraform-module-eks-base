@@ -61,7 +61,11 @@ EOF
 
 resource "null_resource" "eks-admin" {
   provisioner "local-exec" {
-    command = "kubectl apply -f ${data.template_file.eks-admin.rendered}"
+    command = <<EOF
+cat <<EOL | kubectl apply -f -
+${data.template_file.eks-admin.rendered}"
+EOL
+EOF
     environment = {
       KUBECONFIG = var.kubeconfig_filename
     }
