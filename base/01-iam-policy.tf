@@ -1,3 +1,77 @@
+locals {
+  iam_authenticator = "https://raw.githubusercontent.com/kubernetes-sigs/aws-iam-authenticator/master/deploy/iamidentitymapping.yaml"
+}
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_iam_role" "eks-admin" {
+  name = "eks-admin"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {}
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "eks-admin" {
+  role = aws_iam_role.eks-admin.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+data "http" "eks-admin-crd" {
+  url = local.iam_authenticator
+}
+
+resource "null_resource" "eks-admin-crd" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f ${local.iam_authenticator}"
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
+    }
+  }
+  triggers = {
+    build_number = sha1(data.http.eks-admin-crd.body)
+  }
+  depends_on = [aws_iam_role.eks-admin]
+}
+
+data "template_file" "eks-admin" {
+  template = <<EOF
+apiVersion: iamauthenticator.k8s.aws/v1alpha1
+kind: IAMIdentityMapping
+metadata:
+  name: kubernetes-admin
+spec:
+  arn: arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role.eks-admin.name}
+  username: kubernetes-admin
+  groups:
+    - system:masters
+EOF
+}
+
+resource "null_resource" "eks-admin" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f ${data.template_file.eks-admin.rendered}"
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
+    }
+  }
+  triggers = {
+    build_number = sha1(data.template_file.eks-admin.rendered)
+  }
+  depends_on = [aws_iam_role.eks-admin, null_resource.eks-admin-crd]
+}
+
 resource "aws_iam_role_policy" "eks-node-eip" {
   name = "${var.cluster_id}-node-eip"
   role = var.worker_iam_role_name
