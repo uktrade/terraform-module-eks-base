@@ -24,5 +24,4 @@ resource "null_resource" "helm_update" {
   triggers = {
     build_number = timestamp()
   }
-  depends_on = [kubernetes_cluster_role_binding.tiller]
 }
