@@ -46,13 +46,21 @@ s3:
   bucket: ${var.registry_config["s3_bucket"]}
   encrypt: true
   secure: true
-tlsSecretName: docker-registry-cert
 secrets:
   s3:
     accessKey: ${var.registry_config["s3_accesskey"]}
     secretKey: ${var.registry_config["s3_secretkey"]}
 persistence:
   deleteEnabled: true
+extraVolumes:
+  - name: tls-cert
+    secret:
+      defaultMode: 420
+      secretName: docker-registry-cert
+extraVolumeMounts:
+  - mountPath: /etc/ssl/docker
+    name: tls-cert
+    readOnly: true
 configData:
   version: 0.1
   health:
@@ -61,10 +69,13 @@ configData:
       interval: 10s
       threshold: 3
   http:
+    host: registry.${var.cluster_domain}
     addr: :5000
     headers:
       X-Content-Type-Options:
       - nosniff
+    prometheus:
+      enabled: true
   log:
     fields:
       service: registry
