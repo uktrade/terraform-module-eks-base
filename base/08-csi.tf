@@ -16,7 +16,7 @@ resource "kubernetes_storage_class" "aws-ebs-storage-class" {
   }
   storage_provisioner = "ebs.csi.aws.com"
   volume_binding_mode = "WaitForFirstConsumer"
-  parameters {
+  parameters = {
     encrypted = "true"
   }
 }
@@ -34,7 +34,7 @@ resource "kubernetes_storage_class" "aws-efs-storage-class" {
   }
   storage_provisioner = "efs.csi.aws.com"
   volume_binding_mode = "WaitForFirstConsumer"
-  parameters {
+  parameters = {
     encrypted = "true"
   }
 }
