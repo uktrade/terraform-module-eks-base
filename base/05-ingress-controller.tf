@@ -31,6 +31,8 @@ EOF
 data "aws_acm_certificate" "eks-acm" {
   domain = "${var.cluster_domain}"
   statuses = ["ISSUED"]
+  types = ["AMAZON_ISSUED"]
+  most_recent = true
 }
 
 resource "kubernetes_config_map" "tcp-services" {
