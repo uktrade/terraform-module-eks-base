@@ -1,3 +1,7 @@
+variable "cluster_name" {
+  default = ""
+}
+
 variable "cluster_id" {
   default = ""
 }

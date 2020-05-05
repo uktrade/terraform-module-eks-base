@@ -4,6 +4,7 @@ provider "kubernetes" {
 
 module "eks-base" {
   source               = "github.com/uktrade/terraform-module-eks-base//base"
+  cluster_name         = var.cluster_name
   cluster_id           = var.cluster_id
   cluster_domain       = var.cluster_domain
   worker_iam_role_name = var.worker_iam_role_name
@@ -14,6 +15,7 @@ module "eks-base" {
 
 module "eks-dashboard" {
   source                 = "github.com/uktrade/terraform-module-eks-base//dashboard"
+  cluster_name           = var.cluster_name
   cluster_id             = var.cluster_id
   cluster_domain         = var.cluster_domain
   cluster_ca_certificate = var.cluster_ca_certificate
@@ -24,6 +26,7 @@ module "eks-dashboard" {
 
 module "eks-registry" {
   source              = "github.com/uktrade/terraform-module-eks-base//docker-registry"
+  cluster_name        = var.cluster_name
   cluster_id          = var.cluster_id
   cluster_domain      = var.cluster_domain
   kubeconfig_filename = var.kubeconfig_filename
@@ -33,6 +36,7 @@ module "eks-registry" {
 
 module "eks-metrics" {
   source              = "github.com/uktrade/terraform-module-eks-base//metrics"
+  cluster_name        = var.cluster_name
   cluster_id          = var.cluster_id
   cluster_domain      = var.cluster_domain
   kubeconfig_filename = var.kubeconfig_filename
@@ -42,6 +46,7 @@ module "eks-metrics" {
 
 module "eks-logging" {
   source              = "github.com/uktrade/terraform-module-eks-base//logging"
+  cluster_name        = var.cluster_name
   cluster_id          = var.cluster_id
   cluster_domain      = var.cluster_domain
   kubeconfig_filename = var.kubeconfig_filename

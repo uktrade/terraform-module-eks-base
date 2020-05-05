@@ -9,13 +9,13 @@ data "template_file" "fluentd" {
 awsRegion: ${var.logging_config["aws_region"]}
 awsAccessKeyId: ${var.logging_config["aws_access_key"]}
 awsSecretAccessKey: ${var.logging_config["aws_secret_key"]}
-logGroupName: "${var.cluster_domain}-k8s"
+logGroupName: "${var.cluster_name}-k8s"
 rbac:
   create: true
 image:
   tag: v1.4.2-debian-cloudwatch-1.0
 extraVars:
-  - "{name: CLUSTER_NAME, value: ${var.cluster_domain}}"
+  - "{name: CLUSTER_NAME, value: ${var.cluster_name}}"
 EOF
 }
 
