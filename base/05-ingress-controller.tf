@@ -61,7 +61,7 @@ controller:
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
       service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
       service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
-      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${locals.acm_certificate_arn}
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${local.acm_certificate_arn}
       service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: ELBSecurityPolicy-TLS-1-2-2017-01
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
       service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
@@ -107,7 +107,7 @@ controller:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
       service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
-      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${locals.acm_certificate_arn}
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${local.acm_certificate_arn}
       service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: ELBSecurityPolicy-TLS-1-2-2017-01
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
       service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
