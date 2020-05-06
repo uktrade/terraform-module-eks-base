@@ -1,5 +1,5 @@
 data "aws_route53_zone" "k8s-dns" {
-  name = "${var.cluster_domain}"
+  name = "${var.eks_extra_config["domain"]}"
 }
 
 resource "aws_iam_role_policy" "eks-route53" {
@@ -38,7 +38,7 @@ provider: aws
 aws:
   zoneType: public
 domainFilters:
-  - ${var.cluster_domain}
+  - ${var.eks_extra_config["domain"]}
 zoneIdFilters:
   - ${data.aws_route53_zone.k8s-dns.zone_id}
 txtOwnerId: ${var.cluster_id}

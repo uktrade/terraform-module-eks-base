@@ -6,10 +6,6 @@ variable "cluster_id" {
   default = ""
 }
 
-variable "cluster_domain" {
-  default = ""
-}
-
 variable "worker_iam_role_name" {
  default = ""
 }
@@ -25,5 +21,10 @@ variable "metric_config" {
 
 variable "helm_release" {
   type = map(string)
+  default = {}
+}
+
+variable "eks_extra_config" {
+  type    = any
   default = {}
 }

@@ -29,10 +29,14 @@ EOF
 }
 
 data "aws_acm_certificate" "eks-acm" {
-  domain = "${var.cluster_domain}"
+  domain = "${var.eks_extra_config["domain"]}"
   statuses = ["ISSUED"]
   types = ["AMAZON_ISSUED"]
   most_recent = true
+}
+
+locals {
+  acm_certificate_arn = coalesce(lookup(var.eks_extra_config, "acm_certificate_arn", ""), data.aws_acm_certificate.eks-acm.arn)
 }
 
 resource "kubernetes_config_map" "tcp-services" {
@@ -57,7 +61,7 @@ controller:
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
       service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
       service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
-      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${data.aws_acm_certificate.eks-acm.arn}
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${locals.aws_acm_certificate.eks-acm}
       service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: ELBSecurityPolicy-TLS-1-2-2017-01
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
       service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
@@ -103,7 +107,7 @@ controller:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
       service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
-      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${data.aws_acm_certificate.eks-acm.arn}
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${locals.aws_acm_certificate.eks-acm}
       service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: ELBSecurityPolicy-TLS-1-2-2017-01
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
       service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"

@@ -13,7 +13,7 @@ resource "tls_self_signed_cert" "portus-tls-cert" {
   key_algorithm = tls_private_key.portus-tls-key.algorithm
   private_key_pem = tls_private_key.portus-tls-key.private_key_pem
   subject {
-    common_name = "registry.${var.cluster_domain}"
+    common_name = "registry.${var.eks_extra_config["domain"]}"
   }
   validity_period_hours = 87600
   allowed_uses = [
@@ -69,7 +69,7 @@ configData:
       interval: 10s
       threshold: 3
   http:
-    host: registry.${var.cluster_domain}
+    host: registry.${var.eks_extra_config["domain"]}
     addr: :5000
     headers:
       X-Content-Type-Options:
@@ -94,14 +94,14 @@ configData:
         enabled: false
   auth:
     token:
-      realm: https://registry.${var.cluster_domain}/console/v2/token
-      service: registry.${var.cluster_domain}
-      issuer: registry.${var.cluster_domain}
+      realm: https://registry.${var.eks_extra_config["domain"]}/console/v2/token
+      service: registry.${var.eks_extra_config["domain"]}
+      issuer: registry.${var.eks_extra_config["domain"]}
       rootcertbundle: /etc/ssl/docker/tls.crt
   notifications:
     endpoints:
       - name: portus
-        url: https://registry.${var.cluster_domain}/console/v2/webhooks/events
+        url: https://registry.${var.eks_extra_config["domain"]}/console/v2/webhooks/events
         timeout: 500ms
         threshold: 5
         backoff: 1s
@@ -130,7 +130,7 @@ resource "kubernetes_config_map" "portus-config" {
     PORTUS_DB_DATABASE = var.registry_config["db_name"]
     PORTUS_DB_USERNAME = var.registry_config["db_user"]
     PORTUS_DB_PASSWORD = var.registry_config["db_password"]
-    "config.yml" = templatefile("${path.module}/portus-config.tmpl", { cluster_domain = "${var.cluster_domain}", oauth_client_id = "${var.registry_config["oauth_client_id"]}", oauth_client_secret = "${var.registry_config["oauth_client_secret"]}", oauth_organization = "${var.registry_config["oauth_organization"]}", oauth_team = "${var.registry_config["oauth_team"]}" })
+    "config.yml" = templatefile("${path.module}/portus-config.tmpl", { eks_extra_config["domain"] = "${var.eks_extra_config["domain"]}", oauth_client_id = "${var.registry_config["oauth_client_id"]}", oauth_client_secret = "${var.registry_config["oauth_client_secret"]}", oauth_organization = "${var.registry_config["oauth_organization"]}", oauth_team = "${var.registry_config["oauth_team"]}" })
   }
   depends_on = [kubernetes_namespace.tools]
 }
@@ -202,7 +202,7 @@ resource "kubernetes_ingress" "portus-ingress" {
   }
   spec {
     rule {
-      host = "registry.${var.cluster_domain}"
+      host = "registry.${var.eks_extra_config["domain"]}"
       http {
         path {
           path = "/(assets|favicon)/"
@@ -230,7 +230,7 @@ resource "kubernetes_ingress" "docker-registry-ingress" {
   }
   spec {
     rule {
-      host = "registry.${var.cluster_domain}"
+      host = "registry.${var.eks_extra_config["domain"]}"
       http {
         path {
           path = "/"

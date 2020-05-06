@@ -6,10 +6,6 @@ variable "cluster_id" {
   default = ""
 }
 
-variable "cluster_domain" {
-  default = ""
-}
-
 variable "cluster_ca_certificate" {
   default = ""
 }
@@ -28,6 +24,11 @@ variable "dashboard_oauth_config" {
 }
 
 variable "eks_config" {
+  type    = any
+  default = {}
+}
+
+variable "eks_extra_config" {
   type    = any
   default = {}
 }

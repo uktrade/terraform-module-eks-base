@@ -6,10 +6,6 @@ variable "cluster_id" {
   default = ""
 }
 
-variable "cluster_domain" {
-  default = ""
-}
-
 variable "cluster_ca_certificate" {
   default = ""
 }
@@ -29,5 +25,10 @@ variable "dashboard_oauth_config" {
 
 variable "helm_release" {
   type = map(string)
+  default = {}
+}
+
+variable "eks_extra_config" {
+  type    = any
   default = {}
 }

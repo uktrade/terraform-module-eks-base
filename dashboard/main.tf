@@ -36,7 +36,7 @@ ingress:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts:
-    - "console.${var.cluster_domain}"
+    - "console.${var.eks_extra_config["domain"]}"
   path: /oauth2
 nodeSelector:
   role: worker
@@ -80,7 +80,7 @@ service:
 ingress:
   enabled: true
   hosts:
-    - "console.${var.cluster_domain}"
+    - "console.${var.eks_extra_config["domain"]}"
   annotations:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/ingress.allow-http: "false"

@@ -16,7 +16,7 @@ prometheus:
       nginx.ingress.kubernetes.io/configuration-snippet: |
         rewrite ^/$ /targets last;
     hosts:
-      - "status.${var.cluster_domain}"
+      - "status.${var.eks_extra_config["domain"]}"
 alertmanager:
   alertmanagerSpec:
     nodeSelector:
@@ -27,11 +27,11 @@ alertmanager:
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     hosts:
-      - "alert.${var.cluster_domain}"
+      - "alert.${var.eks_extra_config["domain"]}"
 grafana:
   env:
-    GF_SERVER_DOMAIN: "metric.${var.cluster_domain}"
-    GF_SERVER_ROOT_URL: "https://metric.${var.cluster_domain}/"
+    GF_SERVER_DOMAIN: "metric.${var.eks_extra_config["domain"]}"
+    GF_SERVER_ROOT_URL: "https://metric.${var.eks_extra_config["domain"]}/"
     GF_AUTH_GITHUB_ENABLED: "true"
     GF_AUTH_GITHUB_ALLOW_SIGN_UP: "true"
     GF_AUTH_GITHUB_CLIENT_ID: "${var.metric_config["oauth_client_id"]}"
@@ -44,7 +44,7 @@ grafana:
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     hosts:
-      - "metric.${var.cluster_domain}"
+      - "metric.${var.eks_extra_config["domain"]}"
   nodeSelector:
     role: worker
 EOF
