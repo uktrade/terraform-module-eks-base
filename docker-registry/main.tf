@@ -130,7 +130,7 @@ resource "kubernetes_config_map" "portus-config" {
     PORTUS_DB_DATABASE = var.registry_config["db_name"]
     PORTUS_DB_USERNAME = var.registry_config["db_user"]
     PORTUS_DB_PASSWORD = var.registry_config["db_password"]
-    "config.yml" = templatefile("${path.module}/portus-config.tmpl", { eks_extra_config["domain"] = "${var.eks_extra_config["domain"]}", oauth_client_id = "${var.registry_config["oauth_client_id"]}", oauth_client_secret = "${var.registry_config["oauth_client_secret"]}", oauth_organization = "${var.registry_config["oauth_organization"]}", oauth_team = "${var.registry_config["oauth_team"]}" })
+    "config.yml" = templatefile("${path.module}/portus-config.tmpl", { cluster_domain = "${var.eks_extra_config["domain"]}", oauth_client_id = "${var.registry_config["oauth_client_id"]}", oauth_client_secret = "${var.registry_config["oauth_client_secret"]}", oauth_organization = "${var.registry_config["oauth_organization"]}", oauth_team = "${var.registry_config["oauth_team"]}" })
   }
   depends_on = [kubernetes_namespace.tools]
 }
