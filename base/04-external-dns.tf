@@ -56,7 +56,7 @@ EOF
 resource "helm_release" "external-dns" {
   name = "external-dns"
   namespace = "kube-system"
-  repository = "stable"
+  repository = "bitnami"
   chart = "external-dns"
   version = var.helm_release["external-dns"]
   values = ["${data.template_file.external-dns-values.rendered}"]
