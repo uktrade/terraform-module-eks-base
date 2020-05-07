@@ -4,24 +4,14 @@ provider "helm" {
   }
 }
 
-data "helm_repository" "stable" {
-    name = "stable"
-    url = "https://kubernetes-charts.storage.googleapis.com"
-}
-
-data "helm_repository" "incubator" {
-    name = "incubator"
-    url = "https://kubernetes-charts-incubator.storage.googleapis.com"
-}
-
-data "helm_repository" "bitnami" {
-    name = "bitnami"
-    url = "https://charts.bitnami.com/bitnami"
-}
-
 resource "null_resource" "helm_update" {
   provisioner "local-exec" {
-    command = "helm repo update"
+    command = <<EOT
+helm repo add stable https://kubernetes-charts.storage.googleapis.com &&
+helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com &&
+helm repo add bitnami https://charts.bitnami.com/bitnami &&
+helm repo update
+EOT
     environment = {
       KUBECONFIG = var.kubeconfig_filename
     }
