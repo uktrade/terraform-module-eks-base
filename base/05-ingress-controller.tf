@@ -93,7 +93,7 @@ EOF
 resource "helm_release" "nginx-ingress" {
   name = "nginx-ingress"
   namespace = "kube-system"
-  repository = data.helm_repository.stable.metadata.0.name
+  repository = "stable"
   chart = "nginx-ingress"
   version = var.helm_release["nginx-ingress"]
   values = ["${data.template_file.nginx-ingress-values.rendered}"]
@@ -140,7 +140,7 @@ EOF
 resource "helm_release" "nginx-ingress-external" {
   name = "nginx-ingress-external"
   namespace = "kube-system"
-  repository = data.helm_repository.stable.metadata.0.name
+  repository = "stable"
   chart = "nginx-ingress"
   version = var.helm_release["nginx-ingress"]
   values = ["${data.template_file.nginx-ingress-external-values.rendered}"]
