@@ -70,13 +70,13 @@ resource "kubernetes_cluster_role_binding" "dashboard-admin" {
 
 data "template_file" "dashboard-values" {
   template = <<EOF
-enableInsecureLogin: true
-enableSkipLogin: true
+protocolHttp: true
+metricsScraper:
+  enabled: true
 extraArgs:
+  - --enable-skip-login
+  - --enable-insecure-login
   - --disable-settings-authorizer
-service:
-  externalPort: 8080
-  internalPort: 8080
 ingress:
   enabled: true
   hosts:
@@ -95,7 +95,7 @@ EOF
 resource "helm_release" "dashboard" {
   name = "kubernetes-dashboard"
   namespace = "kube-system"
-  repository = "stable"
+  repository = "funkypenguin-kubernetes-dashboard"
   chart = "kubernetes-dashboard"
   version = var.helm_release["kubernetes-dashboard"]
   values = ["${data.template_file.dashboard-values.rendered}"]
