@@ -57,6 +57,8 @@ data "template_file" "nginx-ingress-values" {
   template = <<EOF
 controller:
   service:
+    targetPorts:
+      https: 80
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
       service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
@@ -104,6 +106,8 @@ data "template_file" "nginx-ingress-external-values" {
   template = <<EOF
 controller:
   service:
+    targetPorts:
+      https: 80
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
       service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
