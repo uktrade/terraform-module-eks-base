@@ -81,18 +81,15 @@ controller:
     annotations-prefix: nginx.ingress.kubernetes.io
   publishService:
     enabled: true
-  nodeSelector:
-    role: worker
   replicaCount: ${length(data.aws_availability_zones.current.names)}
   affinity:
     podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 100
-        podAffinityTerm:
-          topologyKey: failure-domain.beta.kubernetes.io/zone
-          labelSelector:
-            matchLabels:
-              release: nginx-ingress
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - topologyKey: failure-domain.beta.kubernetes.io/zone
+        labelSelector:
+          matchLabels:
+            # release: nginx-ingress
+            role: worker
 defaultBackend:
   enabled: false
 stats:
@@ -109,6 +106,7 @@ resource "helm_release" "nginx-ingress" {
   chart = "nginx-ingress"
   version = var.helm_release["nginx-ingress"]
   values = ["${data.template_file.nginx-ingress-values.rendered}"]
+  # wait = false
   depends_on = [kubernetes_config_map.tcp-services, kubernetes_config_map.udp-services]
 }
 
@@ -140,18 +138,14 @@ controller:
     annotations-prefix: nginx.ingress.kubernetes.io
   publishService:
     enabled: true
-  nodeSelector:
-    role: worker
   replicaCount: ${length(data.aws_availability_zones.current.names)}
   affinity:
     podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 100
-        podAffinityTerm:
-          topologyKey: failure-domain.beta.kubernetes.io/zone
-          labelSelector:
-            matchLabels:
-              release: nginx-ingress-external
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - topologyKey: failure-domain.beta.kubernetes.io/zone
+        labelSelector:
+          matchLabels:
+            role: worker
 defaultBackend:
   enabled: false
 stats:
@@ -168,5 +162,6 @@ resource "helm_release" "nginx-ingress-external" {
   chart = "nginx-ingress"
   version = var.helm_release["nginx-ingress"]
   values = ["${data.template_file.nginx-ingress-external-values.rendered}"]
+  # wait = false
   depends_on = [kubernetes_config_map.tcp-services, kubernetes_config_map.udp-services]
 }
