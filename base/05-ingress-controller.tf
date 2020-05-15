@@ -91,7 +91,7 @@ controller:
         - matchExpressions:
           - key: failure-domain.beta.kubernetes.io/zone
             operator: In
-            values: ${data.aws_availability_zones.current.names}
+            values: [${join(",", data.aws_availability_zones.current.names)}]
 defaultBackend:
   enabled: false
 stats:
@@ -149,7 +149,7 @@ controller:
         - matchExpressions:
           - key: failure-domain.beta.kubernetes.io/zone
             operator: In
-            values: ${data.aws_availability_zones.current.names}
+            values: [${join(",", data.aws_availability_zones.current.names)}]
 defaultBackend:
   enabled: false
 stats:
