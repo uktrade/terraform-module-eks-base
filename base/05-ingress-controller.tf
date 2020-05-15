@@ -83,6 +83,15 @@ controller:
     enabled: true
   nodeSelector:
     role: worker
+  replicaCount: ${length(data.aws_availability_zones.current.names)}
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: failure-domain.beta.kubernetes.io/zone
+            operator: In
+            values: ${data.aws_availability_zones.current.names}
 defaultBackend:
   enabled: false
 stats:
@@ -132,6 +141,15 @@ controller:
     enabled: true
   nodeSelector:
     role: worker
+  replicaCount: ${length(data.aws_availability_zones.current.names)}
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: failure-domain.beta.kubernetes.io/zone
+            operator: In
+            values: ${data.aws_availability_zones.current.names}
 defaultBackend:
   enabled: false
 stats:

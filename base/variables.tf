@@ -1,4 +1,5 @@
 data "aws_region" "current" {}
+data "aws_availability_zones" "current" {}
 
 variable "cluster_name" {
   default = ""
