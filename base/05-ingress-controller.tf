@@ -85,13 +85,12 @@ controller:
     role: worker
   replicaCount: ${length(data.aws_availability_zones.current.names)}
   affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: failure-domain.beta.kubernetes.io/zone
-            operator: In
-            values: [${join(",", data.aws_availability_zones.current.names)}]
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - topologyKey: failure-domain.beta.kubernetes.io/zone
+      labelSelector:
+        matchLabels:
+          release: nginx-ingress
 defaultBackend:
   enabled: false
 stats:
@@ -143,13 +142,12 @@ controller:
     role: worker
   replicaCount: ${length(data.aws_availability_zones.current.names)}
   affinity:
-    nodeAffinity:
+    podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: failure-domain.beta.kubernetes.io/zone
-            operator: In
-            values: [${join(",", data.aws_availability_zones.current.names)}]
+      - topologyKey: failure-domain.beta.kubernetes.io/zone
+        labelSelector:
+          matchLabels:
+            release: nginx-ingress-external
 defaultBackend:
   enabled: false
 stats:
