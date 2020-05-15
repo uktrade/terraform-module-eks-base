@@ -81,22 +81,18 @@ controller:
     annotations-prefix: nginx.ingress.kubernetes.io
   publishService:
     enabled: true
+  nodeSelector:
+    role: worker
   replicaCount: ${length(data.aws_availability_zones.current.names)}
   affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: role
-            operator: In
-            values:
-            - worker
     podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - topologyKey: failure-domain.beta.kubernetes.io/zone
-        labelSelector:
-          matchLabels:
-            release: nginx-ingress
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: failure-domain.beta.kubernetes.io/zone
+          labelSelector:
+            matchLabels:
+              release: nginx-ingress
 defaultBackend:
   enabled: false
 stats:
@@ -148,20 +144,14 @@ controller:
     role: worker
   replicaCount: ${length(data.aws_availability_zones.current.names)}
   affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: role
-            operator: In
-            values:
-            - worker
     podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - topologyKey: failure-domain.beta.kubernetes.io/zone
-        labelSelector:
-          matchLabels:
-            release: nginx-ingress-external
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: failure-domain.beta.kubernetes.io/zone
+          labelSelector:
+            matchLabels:
+              release: nginx-ingress
 defaultBackend:
   enabled: false
 stats:
