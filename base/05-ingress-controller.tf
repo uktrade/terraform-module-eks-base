@@ -151,7 +151,7 @@ controller:
           topologyKey: failure-domain.beta.kubernetes.io/zone
           labelSelector:
             matchLabels:
-              release: nginx-ingress
+              release: nginx-ingress-external
 defaultBackend:
   enabled: false
 stats:
