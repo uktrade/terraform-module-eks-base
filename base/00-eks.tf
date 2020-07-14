@@ -23,7 +23,7 @@ locals {
     "1.17" = {
       cni = "1.6.3"
       dns = "1.6.6"
-      kube-proxy = "1.16.8"
+      kube-proxy = "1.17.7"
     }
 
   }
