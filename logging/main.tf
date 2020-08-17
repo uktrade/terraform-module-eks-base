@@ -6,23 +6,23 @@ resource "kubernetes_namespace" "logging" {
 
 data "template_file" "fluentd" {
   template = <<EOF
-awsRegion: ${var.logging_config["aws_region"]}
-awsAccessKeyId: ${var.logging_config["aws_access_key"]}
-awsSecretAccessKey: ${var.logging_config["aws_secret_key"]}
-logGroupName: "${var.cluster_name}-k8s"
-rbac:
-  create: true
-extraVars:
-  - "{name: CLUSTER_NAME, value: ${var.cluster_name}}"
+elasticsearch:
+  scheme: https
+  host: ${var.logging_config["es_host"]}
+  port: ${var.logging_config["es_port"]}
+  logstash_prefix: "${var.cluster_name}-k8s"
+env:
+  OUTPUT_USER: ${var.logging_config["es_user"]}
+  ELASTICSEARCH_PASSWORD: ${var.logging_config["es_pass"]}
 EOF
 }
 
 resource "helm_release" "fluentd" {
-  name = "fluentd-cloudwatch"
+  name = "fluentd-elasticsearch"
   namespace = "logging"
-  repository = "incubator"
-  chart = "fluentd-cloudwatch"
-  version = var.helm_release["fluentd-cloudwatch"]
+  repository = "stable"
+  chart = "fluentd-elasticsearch"
+  version = var.helm_release["fluentd-elasticsearch"]
   values = ["${data.template_file.fluentd.rendered}", "${file("${path.module}/fluentd.conf")}"]
   depends_on = [kubernetes_namespace.logging]
 }
