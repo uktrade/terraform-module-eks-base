@@ -12,8 +12,6 @@ awsSecretAccessKey: ${var.logging_config["aws_secret_key"]}
 logGroupName: "${var.cluster_name}-k8s"
 rbac:
   create: true
-image:
-  tag: v1.4.2-debian-cloudwatch-1.0
 extraVars:
   - "{name: CLUSTER_NAME, value: ${var.cluster_name}}"
 EOF
