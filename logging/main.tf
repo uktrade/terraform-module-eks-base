@@ -23,6 +23,6 @@ resource "helm_release" "fluentd" {
   repository = "stable"
   chart = "fluentd-elasticsearch"
   version = var.helm_release["fluentd-elasticsearch"]
-  values = ["${data.template_file.fluentd.rendered}", "${file("${path.module}/fluentd.conf")}"]
+  values = ["${data.template_file.fluentd.rendered}"]
   depends_on = [kubernetes_namespace.logging]
 }
