@@ -11,9 +11,13 @@ elasticsearch:
   host: ${var.logging_config["es_host"]}
   port: ${var.logging_config["es_port"]}
   logstash_prefix: "${var.cluster_name}-k8s"
-env:
-  OUTPUT_USER: ${var.logging_config["es_user"]}
-  ELASTICSEARCH_PASSWORD: ${var.logging_config["es_pass"]}
+configMaps:
+  output.conf: |
+    <match **>
+      ssl_verify false
+      user ${var.logging_config["es_user"]}
+      password ${var.logging_config["es_pass"]}
+    </match>
 EOF
 }
 
