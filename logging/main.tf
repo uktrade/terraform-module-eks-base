@@ -33,6 +33,8 @@ configMaps:
       logstash_format true
       logstash_prefix "#{ENV['LOGSTASH_PREFIX']}"
       rollover_index true
+      enable_ilm true
+      ilm_policy_id default-index-policy
       reconnect_on_error true
       <buffer>
         @type file
