@@ -32,6 +32,7 @@ configMaps:
       password ${var.logging_config["es_pass"]}
       logstash_format true
       logstash_prefix "#{ENV['LOGSTASH_PREFIX']}"
+      rollover_index true
       reconnect_on_error true
       <buffer>
         @type file
