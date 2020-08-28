@@ -9,7 +9,7 @@ data "template_file" "fluentd" {
 elasticsearch:
   scheme: https
   sslVerify: false
-  host: ${var.logging_config["es_host"]}
+  hosts: ${var.logging_config["es_host"]}
   auth:
     enabled: true
     user: ${var.logging_config["es_user"]}
