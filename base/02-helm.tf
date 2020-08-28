@@ -11,6 +11,7 @@ helm repo add stable https://kubernetes-charts.storage.googleapis.com &&
 helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com &&
 helm repo add bitnami https://charts.bitnami.com/bitnami &&
 helm repo add funkypenguin-kubernetes-dashboard https://funkypenguin.github.io/helm-kubernetes-dashboard/ &&
+helm repo add kiwigrid https://kiwigrid.github.io &&
 helm repo update
 EOT
     environment = {
