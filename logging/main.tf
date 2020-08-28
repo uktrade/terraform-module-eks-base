@@ -11,7 +11,7 @@ elasticsearch:
   sslVerify: false
   host: ${var.logging_config["es_host"]}
   auth:
-    enabledL true
+    enabled: true
     user: ${var.logging_config["es_user"]}
     password: ${var.logging_config["es_pass"]}
   logstash:
