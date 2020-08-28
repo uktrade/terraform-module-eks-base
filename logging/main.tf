@@ -10,7 +10,6 @@ elasticsearch:
   scheme: https
   sslVerify: false
   host: ${var.logging_config["es_host"]}
-  port: ${var.logging_config["es_port"]}
   auth:
     enabledL true
     user: ${var.logging_config["es_user"]}
