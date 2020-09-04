@@ -18,8 +18,8 @@ elasticsearch:
     enabled: true
     prefix: "${var.cluster_name}-k8s"
   ilm:
-    enabled: true
-    policy_id: "default-index-policy"
+    enabled: ${var.logging_config["es_ilm_enabled"]}
+    policy_id: ${var.logging_config["es_ilm_policy"]}
 prometheusRule:
   enabled: true
 serviceMetric:
