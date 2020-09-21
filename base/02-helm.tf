@@ -7,11 +7,11 @@ provider "helm" {
 resource "null_resource" "helm_update" {
   provisioner "local-exec" {
     command = <<EOT
-helm repo add stable https://kubernetes-charts.storage.googleapis.com &&
-helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com &&
-helm repo add bitnami https://charts.bitnami.com/bitnami &&
-helm repo add funkypenguin-kubernetes-dashboard https://funkypenguin.github.io/helm-kubernetes-dashboard/ &&
-helm repo add kiwigrid https://kiwigrid.github.io &&
+helm repo add stable https://kubernetes-charts.storage.googleapis.com || true &&
+helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com || true &&
+helm repo add bitnami https://charts.bitnami.com/bitnami || true &&
+helm repo add funkypenguin-kubernetes-dashboard https://funkypenguin.github.io/helm-kubernetes-dashboard || true &&
+helm repo add kiwigrid https://kiwigrid.github.io || true &&
 helm repo update
 EOT
     environment = {
