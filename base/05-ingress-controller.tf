@@ -29,7 +29,7 @@ EOF
 }
 
 data "aws_acm_certificate" "eks-acm" {
-  domain = "${var.eks_extra_config["domain"]}"
+  domain = var.eks_extra_config["domain"]
   statuses = ["ISSUED"]
   types = ["AMAZON_ISSUED"]
   most_recent = true
@@ -105,7 +105,7 @@ resource "helm_release" "nginx-ingress" {
   repository = "stable"
   chart = "nginx-ingress"
   version = var.helm_release["nginx-ingress"]
-  values = ["${data.template_file.nginx-ingress-values.rendered}"]
+  values = [data.template_file.nginx-ingress-values.rendered]
   # wait = false
   depends_on = [kubernetes_config_map.tcp-services, kubernetes_config_map.udp-services]
 }
@@ -161,7 +161,7 @@ resource "helm_release" "nginx-ingress-external" {
   repository = "stable"
   chart = "nginx-ingress"
   version = var.helm_release["nginx-ingress"]
-  values = ["${data.template_file.nginx-ingress-external-values.rendered}"]
+  values = [data.template_file.nginx-ingress-external-values.rendered]
   # wait = false
   depends_on = [kubernetes_config_map.tcp-services, kubernetes_config_map.udp-services]
 }
