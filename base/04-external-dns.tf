@@ -1,5 +1,5 @@
 data "aws_route53_zone" "k8s-dns" {
-  name = "${var.eks_extra_config["domain"]}"
+  name = var.eks_extra_config["domain"]
 }
 
 resource "aws_iam_role_policy" "eks-route53" {
