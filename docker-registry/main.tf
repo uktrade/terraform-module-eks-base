@@ -116,7 +116,7 @@ resource "helm_release" "registry" {
   repository = "stable"
   chart = "docker-registry"
   version = var.helm_release["docker-registry"]
-  values = ["${data.template_file.registry-values.rendered}"]
+  values = [data.template_file.registry-values.rendered]
   depends_on = [kubernetes_namespace.tools, tls_self_signed_cert.portus-tls-cert]
 }
 
@@ -161,8 +161,8 @@ EOF
     }
   }
   triggers = {
-    build_number = "${sha1(file("${path.module}/portus-dc.yaml"))}"
-    version = "${var.registry_config["portus_version"]}"
+    build_number = sha1(file("${path.module}/portus-dc.yaml"))
+    version = var.registry_config["portus_version"]
   }
   depends_on = [kubernetes_namespace.tools, kubernetes_secret.portus-secret]
 }

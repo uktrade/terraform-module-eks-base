@@ -56,5 +56,5 @@ resource "helm_release" "prometheus" {
   repository = "stable"
   chart = "prometheus-operator"
   version = var.helm_release["prometheus-operator"]
-  values = ["${data.template_file.prometheus-values.rendered}"]
+  values = [data.template_file.prometheus-values.rendered]
 }

@@ -13,7 +13,7 @@ resource "helm_release" "metrics-server" {
   repository = "stable"
   chart = "metrics-server"
   version = var.helm_release["metrics-server"]
-  values = ["${data.template_file.metrics-server-values.rendered}"]
+  values = [data.template_file.metrics-server-values.rendered]
 }
 
 data "template_file" "oauth-proxy-values" {
@@ -49,7 +49,7 @@ resource "helm_release" "oauth-proxy" {
   repository = "stable"
   chart = "oauth2-proxy"
   version = var.helm_release["oauth2-proxy"]
-  values = ["${data.template_file.oauth-proxy-values.rendered}"]
+  values = [data.template_file.oauth-proxy-values.rendered]
 }
 
 resource "kubernetes_cluster_role_binding" "dashboard-admin" {
@@ -98,7 +98,7 @@ resource "helm_release" "dashboard" {
   repository = "funkypenguin-kubernetes-dashboard"
   chart = "kubernetes-dashboard"
   version = var.helm_release["kubernetes-dashboard"]
-  values = ["${data.template_file.dashboard-values.rendered}"]
+  values = [data.template_file.dashboard-values.rendered]
   depends_on = [kubernetes_cluster_role_binding.dashboard-admin]
 }
 

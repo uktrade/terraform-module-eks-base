@@ -35,6 +35,6 @@ resource "helm_release" "fluentd" {
   repository = "kiwigrid"
   chart = "fluentd-elasticsearch"
   version = var.helm_release["fluentd-elasticsearch"]
-  values = ["${data.template_file.fluentd.rendered}"]
+  values = [data.template_file.fluentd.rendered]
   depends_on = [kubernetes_namespace.logging]
 }
