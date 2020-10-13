@@ -7,7 +7,7 @@ prometheus:
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/configuration-snippet: |
-        rewrite ^/$ /targets last;
+        rewrite ^/$ /alerts last;
     hosts:
       - "status.${var.eks_extra_config["domain"]}"
 alertmanager:
