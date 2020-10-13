@@ -21,8 +21,6 @@ alertmanager:
     hosts:
       - "alert.${var.eks_extra_config["domain"]}"
 grafana:
-  serviceMonitor:
-    enabled: true
   persistence:
     enabled: true
   env:
