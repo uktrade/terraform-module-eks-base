@@ -48,7 +48,7 @@ resource "helm_release" "prometheus" {
   name = "prometheus"
   namespace = "monitoring"
   repository = "prometheus-community"
-  chart = "prometheus-operator"
+  chart = "kube-prometheus-stack"
   version = var.helm_release["kube-prometheus-stack"]
   values = [data.template_file.prometheus-values.rendered]
 }
