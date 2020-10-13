@@ -1,13 +1,6 @@
 data "template_file" "prometheus-values" {
   template = <<EOF
-prometheusOperator:
-  nodeSelector:
-    role: worker
 prometheus:
-  prometheusSpec:
-    enableAdminAPI: true
-    nodeSelector:
-      role: worker
   ingress:
     enabled: true
     annotations:
@@ -18,9 +11,6 @@ prometheus:
     hosts:
       - "status.${var.eks_extra_config["domain"]}"
 alertmanager:
-  alertmanagerSpec:
-    nodeSelector:
-      role: worker
   ingress:
     enabled: true
     annotations:
@@ -29,6 +19,10 @@ alertmanager:
     hosts:
       - "alert.${var.eks_extra_config["domain"]}"
 grafana:
+  serviceMonitor:
+    enabled: true
+  persistence:
+    enabled: true
   env:
     GF_SERVER_DOMAIN: "metric.${var.eks_extra_config["domain"]}"
     GF_SERVER_ROOT_URL: "https://metric.${var.eks_extra_config["domain"]}/"
@@ -45,16 +39,16 @@ grafana:
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     hosts:
       - "metric.${var.eks_extra_config["domain"]}"
-  nodeSelector:
-    role: worker
+kubeEtcd:
+  enabled: false
 EOF
 }
 
 resource "helm_release" "prometheus" {
   name = "prometheus"
   namespace = "monitoring"
-  repository = "stable"
+  repository = "prometheus-community"
   chart = "prometheus-operator"
-  version = var.helm_release["prometheus-operator"]
+  version = var.helm_release["kube-prometheus-stack"]
   values = [data.template_file.prometheus-values.rendered]
 }

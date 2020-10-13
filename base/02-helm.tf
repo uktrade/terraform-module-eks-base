@@ -12,6 +12,7 @@ helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.c
 helm repo add bitnami https://charts.bitnami.com/bitnami || true &&
 helm repo add funkypenguin-kubernetes-dashboard https://funkypenguin.github.io/helm-kubernetes-dashboard || true &&
 helm repo add kiwigrid https://kiwigrid.github.io || true &&
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true &&
 helm repo update
 EOT
     environment = {
