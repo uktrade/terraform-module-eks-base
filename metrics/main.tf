@@ -10,8 +10,6 @@ prometheus:
         rewrite ^/$ /targets last;
     hosts:
       - "status.${var.eks_extra_config["domain"]}"
-prometheusOperator:
-  hostNetwork: true
 alertmanager:
   ingress:
     enabled: true
