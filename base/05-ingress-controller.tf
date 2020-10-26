@@ -106,7 +106,7 @@ resource "helm_release" "nginx-ingress" {
   namespace = "kube-system"
   repository = "ingress-nginx"
   chart = "ingress-nginx"
-  version = var.helm_release["nginx-ingress"]
+  version = var.helm_release["ingress-nginx"]
   values = [data.template_file.nginx-ingress-values.rendered]
   # wait = false
   depends_on = [kubernetes_config_map.tcp-services, kubernetes_config_map.udp-services]
@@ -165,7 +165,7 @@ resource "helm_release" "nginx-ingress-external" {
   namespace = "kube-system"
   repository = "ingress-nginx"
   chart = "ingress-nginx"
-  version = var.helm_release["nginx-ingress"]
+  version = var.helm_release["ingress-nginx"]
   values = [data.template_file.nginx-ingress-external-values.rendered]
   # wait = false
   depends_on = [kubernetes_config_map.tcp-services, kubernetes_config_map.udp-services]
