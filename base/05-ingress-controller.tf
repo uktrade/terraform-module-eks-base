@@ -84,16 +84,18 @@ controller:
   replicaCount: ${length(data.aws_availability_zones.current.names)}
   affinity:
     podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - topologyKey: failure-domain.beta.kubernetes.io/zone
-        labelSelector:
-          matchLabels:
-            # release: nginx-ingress
-            role: worker
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+          labelSelector:
+            matchExpressions:
+            - key: release
+              operator: In
+              values:
+              - nginx-ingress
 defaultBackend:
   enabled: false
-stats:
-  enabled: true
 metrics:
   enabled: true
 EOF
@@ -102,8 +104,8 @@ EOF
 resource "helm_release" "nginx-ingress" {
   name = "nginx-ingress"
   namespace = "kube-system"
-  repository = "stable"
-  chart = "nginx-ingress"
+  repository = "ingress-nginx"
+  chart = "ingress-nginx"
   version = var.helm_release["nginx-ingress"]
   values = [data.template_file.nginx-ingress-values.rendered]
   # wait = false
@@ -141,15 +143,18 @@ controller:
   replicaCount: ${length(data.aws_availability_zones.current.names)}
   affinity:
     podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - topologyKey: failure-domain.beta.kubernetes.io/zone
-        labelSelector:
-          matchLabels:
-            role: worker
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+          labelSelector:
+            matchExpressions:
+            - key: release
+              operator: In
+              values:
+              - nginx-ingress-external
 defaultBackend:
   enabled: false
-stats:
-  enabled: true
 metrics:
   enabled: true
 EOF
@@ -158,8 +163,8 @@ EOF
 resource "helm_release" "nginx-ingress-external" {
   name = "nginx-ingress-external"
   namespace = "kube-system"
-  repository = "stable"
-  chart = "nginx-ingress"
+  repository = "ingress-nginx"
+  chart = "ingress-nginx"
   version = var.helm_release["nginx-ingress"]
   values = [data.template_file.nginx-ingress-external-values.rendered]
   # wait = false
