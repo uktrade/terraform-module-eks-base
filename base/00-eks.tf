@@ -20,7 +20,11 @@ locals {
       dns = "1.6.6"
       kube-proxy = "1.17.9-eksbuild.1"
     }
-
+    "1.18" = {
+      cni = "1.7.5"
+      dns = "1.7.0"
+      kube-proxy = "1.18.8-eksbuild.1"
+    }
   }
   eks = merge(local.eks_version[var.eks_config["version"]], lookup(var.eks_config, "components", {}))
 }
