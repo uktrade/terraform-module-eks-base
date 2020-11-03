@@ -22,7 +22,7 @@ locals {
     }
     "1.18" = {
       cni = "1.7.5"
-      dns = "1.7.0"
+      dns = "1.7.0-eksbuild.1"
       kube-proxy = "1.18.8-eksbuild.1"
     }
   }
