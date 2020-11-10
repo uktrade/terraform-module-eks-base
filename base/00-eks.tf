@@ -29,19 +29,6 @@ locals {
   eks = merge(local.eks_version[var.eks_config["version"]], lookup(var.eks_config, "components", {}))
 }
 
-resource "null_resource" "k8s-cni" {
-  provisioner "local-exec" {
-    command = "kubectl -n kube-system set image daemonset.apps/aws-node aws-node=$(kubectl -n kube-system get daemonset.apps/aws-node -o json | jq -rc '.spec.template.spec.containers[].image' | sed -E 's/v([0-9\\.]+)$/v${local.eks["cni"]}/')"
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
-    }
-  }
-  triggers = {
-    eks_version = var.eks_config["version"]
-    build_number = local.eks["cni"]
-  }
-}
-
 resource "null_resource" "k8s-dns" {
   provisioner "local-exec" {
     command = "kubectl -n kube-system set image deployment.apps/coredns coredns=$(kubectl -n kube-system get deployment.apps/coredns -o json | jq -rc '.spec.template.spec.containers[].image' | sed -E 's/v([0-9\\.]+)$/v${local.eks["dns"]}/')"
@@ -66,4 +53,41 @@ resource "null_resource" "k8s-proxy" {
     eks_version = var.eks_config["version"]
     build_number = local.eks["kube-proxy"]
   }
+}
+
+data "template_file" "aws-cni" {
+template = <<EOF
+init:
+  image:
+    tag: v${local.eks["cni"]}
+    region: ${data.aws_region.current.name}
+EOF
+}
+
+resource "helm_release" "aws-cni" {
+  name = "aws-vpc-cni"
+  namespace = "kube-system"
+  repository = "eks"
+  chart = "aws-vpc-cni"
+  version = var.helm_release["aws-vpc-cni"]
+  values = [data.template_file.aws-cni.rendered]
+}
+
+data "template_file" "aws-node-termination-handler" {
+template = <<EOF
+enablePrometheusServer: true
+enableScheduledEventDraining: true
+enableSpotInterruptionDraining: true
+enableRebalanceMonitoring: false
+useHostNetwork: true
+EOF
+}
+
+resource "helm_release" "aws-node-termination-handler" {
+  name = "aws-node-termination-handler"
+  namespace = "kube-system"
+  repository = "eks"
+  chart = "aws-node-termination-handler"
+  version = var.helm_release["aws-node-termination-handler"]
+  values = [data.template_file.aws-node-termination-handler.rendered]
 }
