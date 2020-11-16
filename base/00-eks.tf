@@ -8,22 +8,22 @@ locals {
     "1.15" = {
       cni = "1.7.5"
       dns = "1.6.6"
-      kube-proxy = "1.15.11"
+      kube-proxy = "1.15.12"
     }
     "1.16" = {
       cni = "1.7.5"
       dns = "1.6.6"
-      kube-proxy = "1.16.13"
+      kube-proxy = "1.16.15"
     }
     "1.17" = {
       cni = "1.7.5"
       dns = "1.6.6"
-      kube-proxy = "1.17.9-eksbuild.1"
+      kube-proxy = "1.17.12-eksbuild.1"
     }
     "1.18" = {
       cni = "1.7.5"
       dns = "1.7.0-eksbuild.1"
-      kube-proxy = "1.18.8-eksbuild.1"
+      kube-proxy = "1.18.9-eksbuild.1"
     }
   }
   eks = merge(local.eks_version[var.eks_config["version"]], lookup(var.eks_config, "components", {}))
