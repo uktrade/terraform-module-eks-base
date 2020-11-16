@@ -31,7 +31,7 @@ locals {
 
 resource "null_resource" "k8s-dns" {
   provisioner "local-exec" {
-    command = "kubectl -n kube-system set image deployment.apps/coredns coredns=$(kubectl -n kube-system get deployment.apps/coredns -o json | jq -rc '.spec.template.spec.containers[].image' | sed -E 's/v([0-9\\.]+)$/v${local.eks["dns"]}/')"
+    command = "kubectl -n kube-system set image deployment.apps/coredns coredns=$(kubectl -n kube-system get deployment.apps/coredns -o json | jq -rc '.spec.template.spec.containers[].image' | sed -E 's/v([0-9a-z\\.\\-]+)$/v${local.eks["dns"]}/')"
     environment = {
       KUBECONFIG = var.kubeconfig_filename
     }
@@ -44,7 +44,7 @@ resource "null_resource" "k8s-dns" {
 
 resource "null_resource" "k8s-proxy" {
   provisioner "local-exec" {
-    command = "kubectl -n kube-system set image daemonset.apps/kube-proxy kube-proxy=$(kubectl -n kube-system get daemonset.apps/kube-proxy -o json | jq -rc '.spec.template.spec.containers[].image' | sed -E 's/v([0-9\\.]+)$/v${local.eks["kube-proxy"]}/')"
+    command = "kubectl -n kube-system set image daemonset.apps/kube-proxy kube-proxy=$(kubectl -n kube-system get daemonset.apps/kube-proxy -o json | jq -rc '.spec.template.spec.containers[].image' | sed -E 's/v([0-9a-z\\.\\-]+)$/v${local.eks["kube-proxy"]}/')"
     environment = {
       KUBECONFIG = var.kubeconfig_filename
     }
