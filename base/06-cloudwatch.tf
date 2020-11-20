@@ -113,7 +113,7 @@ resource "null_resource" "cloudwatch-daemonset" {
   triggers = {
     build_number = data.external.cloudwatch-daemonset.result.sha1
   }
-  depends_on = [null_resource.cloudwatch-ns, null_resource.cloudwatch-sa]
+  depends_on = [null_resource.cloudwatch-ns, null_resource.cloudwatch-sa, null_resource.cloudwatch-config-patch]
 }
 
 data "external" "cloudwatch-statsd-config" {
@@ -153,5 +153,5 @@ resource "null_resource" "cloudwatch-statsd-daemonset" {
   triggers = {
     build_number = data.external.cloudwatch-statsd-daemonset.result.sha1
   }
-  depends_on = [null_resource.cloudwatch-ns]
+  depends_on = [null_resource.cloudwatch-ns, null_resource.cloudwatch-statsd-config]
 }
