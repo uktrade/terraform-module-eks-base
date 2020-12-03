@@ -37,4 +37,5 @@ resource "kubernetes_storage_class" "aws-efs-storage-class" {
   parameters = {
     encrypted = "true"
   }
+  mount_options = ["tls"]
 }
