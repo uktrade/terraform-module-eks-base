@@ -74,7 +74,7 @@ extraArgs:
   - --enable-insecure-login
   - --disable-settings-authorizer
 settings:
-  clusterName: ${var.cluster_name}"
+  clusterName: ${var.cluster_name}
   itemsPerPage: 10
   logsAutoRefreshTimeInterval: 5
   resourceAutoRefreshTimeInterval: 5
