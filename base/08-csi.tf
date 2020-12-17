@@ -1,13 +1,18 @@
-locals {
-  aws-ebs-csi-driver-url = "https://github.com/kubernetes-sigs/aws-ebs-csi-driver/releases/download/v${var.helm_release["aws-ebs-csi-driver"]}/helm-chart.tgz"
-  aws-efs-csi-driver-url = "https://github.com/kubernetes-sigs/aws-efs-csi-driver/releases/download/v${var.helm_release["aws-efs-csi-driver"]}/helm-chart.tgz"
+data "template_file" "aws-ebs-csi" {
+  template = <<EOF
+enableVolumeScheduling: true
+enableVolumeResizing: true
+enableVolumeSnapshot: true
+EOF
 }
 
 resource "helm_release" "aws-ebs-csi" {
   name = "aws-ebs-csi-driver"
   namespace = "kube-system"
-  chart = local.aws-ebs-csi-driver-url
+  repository = "aws-ebs-csi-driver"
+  chart = "aws-ebs-csi-driver"
   version = var.helm_release["aws-ebs-csi-driver"]
+  values = [data.template_file.aws-ebs-csi.rendered]
 }
 
 resource "kubernetes_storage_class" "aws-ebs-storage-class" {
@@ -24,7 +29,8 @@ resource "kubernetes_storage_class" "aws-ebs-storage-class" {
 resource "helm_release" "aws-efs-csi" {
   name = "aws-efs-csi-driver"
   namespace = "kube-system"
-  chart = local.aws-efs-csi-driver-url
+  repository = "aws-efs-csi-driver"
+  chart = "aws-efs-csi-driver"
   version = var.helm_release["aws-efs-csi-driver"]
 }
 

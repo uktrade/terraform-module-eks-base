@@ -18,6 +18,8 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx || true &
 helm repo add cloudposse https://charts.cloudposse.com/incubator || true &&
 helm repo add twuni https://helm.twun.io || true &&
 helm repo add stakater https://stakater.github.io/stakater-charts || true &&
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver || true &&
+helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver || true &&
 helm repo update
 EOT
     environment = {
