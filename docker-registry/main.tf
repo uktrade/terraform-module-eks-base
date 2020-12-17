@@ -113,7 +113,7 @@ EOF
 resource "helm_release" "registry" {
   name = "docker-registry"
   namespace = "tools"
-  repository = "stable"
+  repository = "twuni"
   chart = "docker-registry"
   version = var.helm_release["docker-registry"]
   values = [data.template_file.registry-values.rendered]

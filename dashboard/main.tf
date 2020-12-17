@@ -46,7 +46,7 @@ EOF
 resource "helm_release" "oauth-proxy" {
   name = "oauth2-proxy"
   namespace = "kube-system"
-  repository = "stable"
+  repository = "cloudposse"
   chart = "oauth2-proxy"
   version = var.helm_release["oauth2-proxy"]
   values = [data.template_file.oauth-proxy-values.rendered]
@@ -95,7 +95,7 @@ EOF
 resource "helm_release" "dashboard" {
   name = "kubernetes-dashboard"
   namespace = "kube-system"
-  repository = "funkypenguin-kubernetes-dashboard"
+  repository = "kubernetes-dashboard"
   chart = "kubernetes-dashboard"
   version = var.helm_release["kubernetes-dashboard"]
   values = [data.template_file.dashboard-values.rendered]
