@@ -56,7 +56,7 @@ extraVolumes:
   - name: tls-cert
     secret:
       defaultMode: 420
-      secretName: docker-registry-cert
+      secretName: ${kubernetes_secret.docker-registry-cert.name}
 extraVolumeMounts:
   - mountPath: /etc/ssl/docker
     name: tls-cert
@@ -105,8 +105,6 @@ configData:
         timeout: 500ms
         threshold: 5
         backoff: 1s
-nodeSelector:
-  role: worker
 EOF
 }
 

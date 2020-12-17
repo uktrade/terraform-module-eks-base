@@ -1,9 +1,7 @@
 data "template_file" "metrics-server-values" {
   template = <<EOF
-args:
-  - --kubelet-preferred-address-types=InternalIP
-nodeSelector:
-  role: worker
+extraArgs:
+  kubelet-preferred-address-types: InternalIP
 EOF
 }
 
@@ -18,28 +16,16 @@ resource "helm_release" "metrics-server" {
 
 data "template_file" "oauth-proxy-values" {
   template = <<EOF
-config:
+app:
+  useSSL: false
+  provider: github
   clientID: "${var.dashboard_oauth_config["client_id"]}"
   clientSecret: "${var.dashboard_oauth_config["client_secret"]}"
   cookieSecret: "${var.dashboard_oauth_config["cookie_secret"]}"
-  configFile: |-
-    provider = "${var.dashboard_oauth_config["provider"]}"
-    github_org = "${var.dashboard_oauth_config["github_org"]}"
-    github_team = "${var.dashboard_oauth_config["github_team"]}"
-    email_domains = ["*"]
-    cookie_refresh = 60
-    pass_access_token = true
-    upstream = "file:///dev/null"
-ingress:
-  enabled: true
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-  hosts:
-    - "console.${var.eks_extra_config["domain"]}"
-  path: /oauth2
-nodeSelector:
-  role: worker
+  githubOrg: "${var.dashboard_oauth_config["github_org"]}"
+  githubTeam: "${var.dashboard_oauth_config["github_team"]}"
+  cookieSecure: true
+  requestLogging: true
 EOF
 }
 
@@ -77,6 +63,12 @@ extraArgs:
   - --enable-skip-login
   - --enable-insecure-login
   - --disable-settings-authorizer
+settings:
+  clusterName: ${var.cluster_name}"
+  itemsPerPage: 10
+  logsAutoRefreshTimeInterval: 5
+  resourceAutoRefreshTimeInterval: 5
+  disableAccessDeniedNotifications: false
 ingress:
   enabled: true
   hosts:
@@ -87,8 +79,16 @@ ingress:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
     nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
-nodeSelector:
-  role: worker
+  paths:
+  - /
+  - /oauth2
+  customPaths:
+  - backend:
+      serviceName: kubernetes-dashboard
+      servicePort: 80
+  - backend:
+      serviceName: oauth2-proxy
+      servicePort: 80
 EOF
 }
 
