@@ -8,7 +8,7 @@ EOF
 resource "helm_release" "metrics-server" {
   name = "metrics-server"
   namespace = "kube-system"
-  repository = "stable"
+  repository = "bitnami"
   chart = "metrics-server"
   version = var.helm_release["metrics-server"]
   values = [data.template_file.metrics-server-values.rendered]
