@@ -15,7 +15,6 @@ helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard || tru
 helm repo add kiwigrid https://kiwigrid.github.io || true &&
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true &&
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx || true &&
-helm repo add cloudposse https://charts.cloudposse.com/incubator || true &&
 helm repo add twuni https://helm.twun.io || true &&
 helm repo add stakater https://stakater.github.io/stakater-charts || true &&
 helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver || true &&
