@@ -56,7 +56,7 @@ extraVolumes:
   - name: tls-cert
     secret:
       defaultMode: 420
-      secretName: ${kubernetes_secret.docker-registry-cert.name}
+      secretName: docker-registry-cert
 extraVolumeMounts:
   - mountPath: /etc/ssl/docker
     name: tls-cert
