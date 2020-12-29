@@ -1,9 +1,3 @@
-provider "helm" {
-  kubernetes {
-    config_path = var.kubeconfig_filename
-  }
-}
-
 resource "null_resource" "helm_update" {
   provisioner "local-exec" {
     command = <<EOT
