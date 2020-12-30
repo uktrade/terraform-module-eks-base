@@ -41,10 +41,10 @@ notary:
 database:
   type: external
   external:
-    host: harbor.cqhoc1aw3kav.eu-west-2.rds.amazonaws.com
-    port: 5432
-    username: harbor
-    password: hEMlbA7u94IfV2hd9weB
+    host: ${var.registry_config["db_host"]}
+    port: ${var.registry_config["db_port"]}
+    username: ${var.registry_config["db_user"]}
+    password: ${var.registry_config["db_password"]}
     sslmode: require
 EOF
 }
