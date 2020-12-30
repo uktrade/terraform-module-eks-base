@@ -2,6 +2,12 @@ provider "kubernetes" {
   config_path = var.kubeconfig_filename
 }
 
+provider "helm" {
+  kubernetes {
+    config_path = var.kubeconfig_filename
+  }
+}
+
 module "eks-base" {
   source               = "github.com/uktrade/terraform-module-eks-base//base"
   cluster_name         = var.cluster_name

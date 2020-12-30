@@ -45,7 +45,7 @@ EOF
 resource "helm_release" "prometheus" {
   name = "prometheus"
   namespace = "monitoring"
-  repository = "prometheus-community"
+  repository = "https://prometheus-community.github.io/helm-charts"
   chart = "kube-prometheus-stack"
   version = var.helm_release["kube-prometheus-stack"]
   values = [data.template_file.prometheus-values.rendered]
