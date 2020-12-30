@@ -12,7 +12,7 @@ expose:
     enabled: false
   ingress:
     hosts:
-      core: harbor-core.${var.eks_extra_config["domain"]}
+      core: registry.${var.eks_extra_config["domain"]}
       notary: harbor-notary.${var.eks_extra_config["domain"]}
     annotations:
       kubernetes.io/ingress.class: nginx
