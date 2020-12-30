@@ -67,7 +67,7 @@ EOF
 resource "helm_release" "aws-cni" {
   name = "aws-vpc-cni"
   namespace = "kube-system"
-  repository = "eks"
+  repository = "https://aws.github.io/eks-charts"
   chart = "aws-vpc-cni"
   version = var.helm_release["aws-vpc-cni"]
   values = [data.template_file.aws-cni.rendered]
@@ -86,7 +86,7 @@ EOF
 resource "helm_release" "aws-node-termination-handler" {
   name = "aws-node-termination-handler"
   namespace = "kube-system"
-  repository = "eks"
+  repository = "https://aws.github.io/eks-charts"
   chart = "aws-node-termination-handler"
   version = var.helm_release["aws-node-termination-handler"]
   values = [data.template_file.aws-node-termination-handler.rendered]

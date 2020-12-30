@@ -25,7 +25,7 @@ EOF
 resource "helm_release" "autoscaler" {
   name = "cluster-autoscaler"
   namespace = "kube-system"
-  repository = "stable"
+  repository = "https://charts.helm.sh/stable"
   chart = "cluster-autoscaler"
   version = var.helm_release["cluster-autoscaler"]
   values = [data.template_file.autoscaler.rendered]

@@ -32,7 +32,7 @@ EOF
 resource "helm_release" "fluentd" {
   name = "fluentd-elasticsearch"
   namespace = "logging"
-  repository = "kiwigrid"
+  repository = "https://kiwigrid.github.io"
   chart = "fluentd-elasticsearch"
   version = var.helm_release["fluentd-elasticsearch"]
   values = [data.template_file.fluentd.rendered]

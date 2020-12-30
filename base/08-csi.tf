@@ -9,7 +9,7 @@ EOF
 resource "helm_release" "aws-ebs-csi" {
   name = "aws-ebs-csi-driver"
   namespace = "kube-system"
-  repository = "aws-ebs-csi-driver"
+  repository = "https://kubernetes-sigs.github.io/aws-ebs-csi-driver"
   chart = "aws-ebs-csi-driver"
   version = var.helm_release["aws-ebs-csi-driver"]
   values = [data.template_file.aws-ebs-csi.rendered]
@@ -29,7 +29,7 @@ resource "kubernetes_storage_class" "aws-ebs-storage-class" {
 resource "helm_release" "aws-efs-csi" {
   name = "aws-efs-csi-driver"
   namespace = "kube-system"
-  repository = "aws-efs-csi-driver"
+  repository = "https://kubernetes-sigs.github.io/aws-efs-csi-driver"
   chart = "aws-efs-csi-driver"
   version = var.helm_release["aws-efs-csi-driver"]
 }

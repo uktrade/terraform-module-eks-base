@@ -4,247 +4,56 @@ resource "kubernetes_namespace" "tools" {
   }
 }
 
-resource "tls_private_key" "portus-tls-key" {
-  algorithm = "RSA"
-  rsa_bits = 2048
-}
-
-resource "tls_self_signed_cert" "portus-tls-cert" {
-  key_algorithm = tls_private_key.portus-tls-key.algorithm
-  private_key_pem = tls_private_key.portus-tls-key.private_key_pem
-  subject {
-    common_name = "registry.${var.eks_extra_config["domain"]}"
-  }
-  validity_period_hours = 87600
-  allowed_uses = [
-    "digital_signature",
-    "key_encipherment",
-    "data_encipherment",
-    "server_auth",
-    "client_auth",
-    "any_extended"
-  ]
-}
-
-resource "kubernetes_secret" "docker-registry-cert" {
-  metadata {
-    name = "docker-registry-cert"
-    namespace = "tools"
-  }
-  data = {
-    "tls.crt" = tls_self_signed_cert.portus-tls-cert.cert_pem
-    "tls.key" = tls_private_key.portus-tls-key.private_key_pem
-  }
-  depends_on = [kubernetes_namespace.tools]
-}
-
-data "template_file" "registry-values" {
+data "template_file" "harbor-values" {
   template = <<EOF
-storage: s3
-s3:
-  region: ${var.registry_config["s3_region"]}
-  bucket: ${var.registry_config["s3_bucket"]}
-  encrypt: true
-  secure: true
-secrets:
-  s3:
-    accessKey: ${var.registry_config["s3_accesskey"]}
-    secretKey: ${var.registry_config["s3_secretkey"]}
+expose:
+  type: ingress
+  tls:
+    enabled: false
+  ingress:
+    hosts:
+      core: harbor-core.${var.eks_extra_config["domain"]}
+      notary: harbor-notary.${var.eks_extra_config["domain"]}
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+internalTLS:
+  enabled: false
 persistence:
-  deleteEnabled: true
-extraVolumes:
-  - name: tls-cert
-    secret:
-      defaultMode: 420
-      secretName: docker-registry-cert
-extraVolumeMounts:
-  - mountPath: /etc/ssl/docker
-    name: tls-cert
-    readOnly: true
-configData:
-  version: 0.1
-  health:
-    storagedriver:
-      enabled: true
-      interval: 10s
-      threshold: 3
-  http:
-    host: registry.${var.eks_extra_config["domain"]}
-    addr: :5000
-    headers:
-      X-Content-Type-Options:
-      - nosniff
-    prometheus:
-      enabled: true
-  log:
-    fields:
-      service: registry
-  storage:
-    cache:
-      blobdescriptor: inmemory
-    delete:
-      enabled: true
-    maintenance:
-      uploadpurging:
-        enabled: true
-        age: 168h
-        interval: 24h
-        dryrun: false
-      readonly:
-        enabled: false
-  auth:
-    token:
-      realm: https://registry.${var.eks_extra_config["domain"]}/console/v2/token
-      service: registry.${var.eks_extra_config["domain"]}
-      issuer: registry.${var.eks_extra_config["domain"]}
-      rootcertbundle: /etc/ssl/docker/tls.crt
-  notifications:
-    endpoints:
-      - name: portus
-        url: https://registry.${var.eks_extra_config["domain"]}/console/v2/webhooks/events
-        timeout: 500ms
-        threshold: 5
-        backoff: 1s
+  enabled: true
+  imageChartStorage:
+    s3:
+      region: ${var.registry_config["s3_region"]}
+      bucket: ${var.registry_config["s3_bucket"]}
+      accessKey: ${var.registry_config["s3_accesskey"]}
+      secretKey: ${var.registry_config["s3_secretkey"]}
+      encrypt: true
+      secure: true
+externalURL: https://registry.${var.eks_extra_config["domain"]}
+chartmuseum:
+  enabled: true
+clair:
+  enabled: true
+trivy:
+  enabled: true
+notary:
+  enabled: true
+database:
+  type: external
+  external:
+    host: ${var.registry_config["db_host"]}
+    port: ${var.registry_config["db_port"]}
+    username: ${var.registry_config["db_user"]}
+    password: ${var.registry_config["db_password"]}
+    sslmode: require
 EOF
 }
 
-resource "helm_release" "registry" {
-  name = "docker-registry"
+resource "helm_release" "harbor" {
+  name = "harbor"
   namespace = "tools"
-  repository = "twuni"
-  chart = "docker-registry"
-  version = var.helm_release["docker-registry"]
-  values = [data.template_file.registry-values.rendered]
-  depends_on = [kubernetes_namespace.tools, tls_self_signed_cert.portus-tls-cert]
-}
-
-resource "kubernetes_config_map" "portus-config" {
-  metadata {
-    name = "portus-config"
-    namespace = "tools"
-  }
-  data = {
-    PORTUS_DB_HOST = var.registry_config["db_host"]
-    PORTUS_DB_DATABASE = var.registry_config["db_name"]
-    PORTUS_DB_USERNAME = var.registry_config["db_user"]
-    PORTUS_DB_PASSWORD = var.registry_config["db_password"]
-    "config.yml" = templatefile("${path.module}/portus-config.tmpl", { cluster_domain = var.eks_extra_config["domain"], oauth_client_id = var.registry_config["oauth_client_id"], oauth_client_secret = var.registry_config["oauth_client_secret"], oauth_organization = var.registry_config["oauth_organization"], oauth_team = var.registry_config["oauth_team"] })
-  }
-  depends_on = [kubernetes_namespace.tools]
-}
-
-resource "kubernetes_secret" "portus-secret" {
-  metadata {
-    name = "portus-secrets"
-    namespace = "tools"
-  }
-  data = {
-    PORTUS_CERT = tls_self_signed_cert.portus-tls-cert.cert_pem
-    PORTUS_KEY = tls_private_key.portus-tls-key.private_key_pem
-    PORTUS_PASSWORD = var.registry_config["default_password"]
-    PORTUS_SECRET_KEY_BASE = var.registry_config["secret_key_base"]
-  }
-  depends_on = [kubernetes_namespace.tools]
-}
-
-resource "null_resource" "portus" {
-  provisioner "local-exec" {
-    command = <<EOF
-cat <<EOL | kubectl -n tools apply -f -
-${templatefile("${path.module}/portus-dc.yaml", {version = var.registry_config["portus_version"]})}
-EOL
-EOF
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
-    }
-  }
-  triggers = {
-    build_number = sha1(file("${path.module}/portus-dc.yaml"))
-    version = var.registry_config["portus_version"]
-  }
-  depends_on = [kubernetes_namespace.tools, kubernetes_secret.portus-secret]
-}
-
-resource "kubernetes_service" "portus" {
-  metadata {
-    name = "portus"
-    namespace = "tools"
-  }
-  spec {
-    selector = {
-      app = "portus"
-    }
-    type = "ClusterIP"
-    port  {
-      name = "http"
-      protocol = "TCP"
-      port = 3000
-      target_port = 3000
-    }
-  }
-  depends_on = [kubernetes_namespace.tools]
-}
-
-resource "kubernetes_ingress" "portus-ingress" {
-  metadata {
-    name = "portus"
-    namespace = "tools"
-    labels = {
-      app = "portus"
-    }
-    annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
-      "nginx.ingress.kubernetes.io/force-ssl-redirect" = "true"
-      "nginx.ingress.kubernetes.io/rewrite-target" = "/console/$request_uri"
-    }
-  }
-  spec {
-    rule {
-      host = "registry.${var.eks_extra_config["domain"]}"
-      http {
-        path {
-          path = "/(assets|favicon)/"
-          backend {
-            service_name = "portus"
-            service_port = 3000
-          }
-        }
-      }
-    }
-  }
-}
-
-resource "kubernetes_ingress" "docker-registry-ingress" {
-  metadata {
-    name = "docker-registry"
-    namespace = "tools"
-    labels = {
-      app = "docker-registry"
-    }
-    annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
-      "nginx.ingress.kubernetes.io/force-ssl-redirect" = "true"
-    }
-  }
-  spec {
-    rule {
-      host = "registry.${var.eks_extra_config["domain"]}"
-      http {
-        path {
-          path = "/"
-          backend {
-            service_name = "docker-registry"
-            service_port = 5000
-          }
-        }
-        path {
-          path = "/console/"
-          backend {
-            service_name = "portus"
-            service_port = 3000
-          }
-        }
-      }
-    }
-  }
+  repository = "https://helm.goharbor.io"
+  chart = "harbor"
+  version = var.helm_release["harbor"]
+  values = [data.template_file.harbor-values.rendered]
 }
