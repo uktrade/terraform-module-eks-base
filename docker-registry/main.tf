@@ -33,7 +33,7 @@ externalURL: https://registry.${var.eks_extra_config["domain"]}
 chartmuseum:
   enabled: true
 clair:
-  enabled: true
+  enabled: false
 trivy:
   enabled: true
 notary:
