@@ -16,6 +16,9 @@ resource "helm_release" "metrics-server" {
 
 data "template_file" "oauth-proxy-values" {
   template = <<EOF
+image:
+  repository: quay.io/oauth2-proxy/oauth2-proxy
+  tag: "${var.dashboard_oauth_config["oauth2_proxy_version"]}"
 config:
   clientID: "${var.dashboard_oauth_config["client_id"]}"
   clientSecret: "${var.dashboard_oauth_config["client_secret"]}"
@@ -26,8 +29,12 @@ config:
     github_team = "${var.dashboard_oauth_config["github_team"]}"
     email_domains = ["*"]
     cookie_refresh = 60
+    cookie_secure = true
     pass_access_token = true
-    upstream = "file:///dev/null"
+    reverse_proxy = true
+    upstreams = ["https://console.${var.eks_extra_config["domain"]}/"]
+extraArgs:
+  silence-ping-logging: true
 ingress:
   enabled: true
   annotations:
