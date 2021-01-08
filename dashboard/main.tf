@@ -62,6 +62,8 @@ metricsScraper:
   enabled: true
 metrics-server:
   enabled: true
+  args:
+    - --kubelet-preferred-address-types=InternalIP
 extraArgs:
   - --enable-skip-login
   - --enable-insecure-login
