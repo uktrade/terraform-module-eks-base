@@ -1,19 +1,3 @@
-data "template_file" "metrics-server-values" {
-  template = <<EOF
-extraArgs:
-  kubelet-preferred-address-types: InternalIP
-EOF
-}
-
-resource "helm_release" "metrics-server" {
-  name = "metrics-server"
-  namespace = "kube-system"
-  repository = "https://charts.bitnami.com/bitnami"
-  chart = "metrics-server"
-  version = var.helm_release["metrics-server"]
-  values = [data.template_file.metrics-server-values.rendered]
-}
-
 data "template_file" "oauth-proxy-values" {
   template = <<EOF
 image:
@@ -75,6 +59,8 @@ data "template_file" "dashboard-values" {
   template = <<EOF
 protocolHttp: true
 metricsScraper:
+  enabled: true
+metrics-server:
   enabled: true
 extraArgs:
   - --enable-skip-login
