@@ -1,10 +1,5 @@
 locals {
   eks_version = {
-    "1.14" = {
-      cni = "1.7.5"
-      dns = "1.6.6"
-      kube-proxy = "1.14.9"
-    }
     "1.15" = {
       cni = "1.7.5"
       dns = "1.6.6"
