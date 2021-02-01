@@ -1,3 +1,7 @@
+#
+# Module handles basic EKS/k8s component version and upgarde
+#
+
 locals {
   eks_version = {
     "1.15" = {

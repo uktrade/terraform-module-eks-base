@@ -1,3 +1,7 @@
+#
+# Autoscaler helm chart
+#
+
 data "template_file" "autoscaler" {
   template = <<EOF
 cloudProvider: aws

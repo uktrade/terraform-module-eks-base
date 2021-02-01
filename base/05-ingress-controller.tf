@@ -1,3 +1,7 @@
+#
+# Setup k8s ingress controller and ELB/NLB
+#
+
 resource "aws_iam_role_policy" "nginx-ingress" {
   name = "${var.cluster_id}-node-ingress"
   role = var.worker_iam_role_name

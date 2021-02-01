@@ -1,3 +1,8 @@
+#
+# Install and setup k8s SDN
+# TODO: namespace segregated SDN config
+#
+
 resource "helm_release" "aws-calico" {
   name = "aws-calico"
   namespace = "kube-system"

@@ -1,3 +1,8 @@
+#
+# Configure and setup Kubernetes Dashboard with oauth proxy using Github OAuth
+# Docs: https://github.com/kubernetes/dashboard/tree/master/aio/deploy/helm-chart/kubernetes-dashboard
+#
+
 data "template_file" "oauth-proxy-values" {
   template = <<EOF
 image:

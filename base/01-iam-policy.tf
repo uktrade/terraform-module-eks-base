@@ -1,3 +1,7 @@
+#
+# Setup basic IAM roles and permissions for EKS/k8s
+#
+
 locals {
   iam_authenticator = "https://raw.githubusercontent.com/kubernetes-sigs/aws-iam-authenticator/master/deploy/iamidentitymapping.yaml"
 }

@@ -1,3 +1,7 @@
+#
+# Logging to ELK
+#
+
 resource "kubernetes_namespace" "logging" {
   metadata {
     name = "logging"

@@ -1,3 +1,8 @@
+#
+# Prometheus and Grafana
+# Docs: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+#
+
 data "template_file" "prometheus-values" {
   template = <<EOF
 prometheus:

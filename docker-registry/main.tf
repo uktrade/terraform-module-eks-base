@@ -1,3 +1,8 @@
+#
+# Configure and setup internal docker registry using harbor
+# Docs: https://github.com/goharbor/harbor-helm
+#
+
 resource "kubernetes_namespace" "tools" {
   metadata {
     name = "tools"

@@ -1,3 +1,7 @@
+#
+# AWS native CSI for k8s persistent storage (PV/PVS)
+#
+
 data "template_file" "aws-ebs-csi" {
   template = <<EOF
 enableVolumeScheduling: true

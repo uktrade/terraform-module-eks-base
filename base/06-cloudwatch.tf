@@ -1,24 +1,16 @@
+#
+# Cloudwatch for EKS
+# Based on AWS Docs: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/deploy-container-insights-EKS.html
+#
+
 locals {
-  cloudwatch_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/kubernetes-monitoring"
-  statsd_url = "https://s3.amazonaws.com/cloudwatch-agent-k8s-yamls/statsd"
+  cloudwatch_url = "https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/master/k8s-yaml-templates"
+  statsd_url = "https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/master/k8s-yaml-templates/cwagent-statsd"
 }
 
-data "external" "cloudwatch-ns" {
-  program = ["bash", "${path.module}/sha1-http.sh"]
-  query = {
-    url = "${local.cloudwatch_url}/cloudwatch-namespace.yaml"
-  }
-}
-
-resource "null_resource" "cloudwatch-ns" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f ${local.cloudwatch_url}/cloudwatch-namespace.yaml"
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
-    }
-  }
-  triggers = {
-    build_number = data.external.cloudwatch-ns.result.sha1
+resource "kubernetes_namespace" "cloudwatch" {
+  metadata {
+    name = "amazon-cloudwatch"
   }
 }
 
@@ -39,7 +31,7 @@ resource "null_resource" "cloudwatch-config" {
   triggers = {
     build_number = data.external.cloudwatch-config.result.sha1
   }
-  depends_on = [null_resource.cloudwatch-ns]
+  depends_on = [kubernetes_namespace.cloudwatch]
 }
 
 data "template_file" "cloudwatch-config-patch" {
@@ -73,7 +65,7 @@ EOF
   triggers = {
     build_number = data.external.cloudwatch-config.result.sha1
   }
-  depends_on = [null_resource.cloudwatch-ns, null_resource.cloudwatch-config]
+  depends_on = [kubernetes_namespace.cloudwatch, null_resource.cloudwatch-config]
 }
 
 data "external" "cloudwatch-sa" {
@@ -93,7 +85,7 @@ resource "null_resource" "cloudwatch-sa" {
   triggers = {
     build_number = data.external.cloudwatch-sa.result.sha1
   }
-  depends_on = [null_resource.cloudwatch-ns]
+  depends_on = [kubernetes_namespace.cloudwatch]
 }
 
 data "external" "cloudwatch-daemonset" {
@@ -113,7 +105,7 @@ resource "null_resource" "cloudwatch-daemonset" {
   triggers = {
     build_number = data.external.cloudwatch-daemonset.result.sha1
   }
-  depends_on = [null_resource.cloudwatch-ns, null_resource.cloudwatch-sa, null_resource.cloudwatch-config-patch]
+  depends_on = [kubernetes_namespace.cloudwatch, null_resource.cloudwatch-sa, null_resource.cloudwatch-config-patch]
 }
 
 data "external" "cloudwatch-statsd-config" {
@@ -133,7 +125,7 @@ resource "null_resource" "cloudwatch-statsd-config" {
   triggers = {
     build_number = data.external.cloudwatch-statsd-config.result.sha1
   }
-  depends_on = [null_resource.cloudwatch-ns]
+  depends_on = [kubernetes_namespace.cloudwatch]
 }
 
 data "external" "cloudwatch-statsd-daemonset" {
@@ -153,5 +145,5 @@ resource "null_resource" "cloudwatch-statsd-daemonset" {
   triggers = {
     build_number = data.external.cloudwatch-statsd-daemonset.result.sha1
   }
-  depends_on = [null_resource.cloudwatch-ns, null_resource.cloudwatch-statsd-config]
+  depends_on = [kubernetes_namespace.cloudwatch, null_resource.cloudwatch-statsd-config]
 }

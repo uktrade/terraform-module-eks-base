@@ -1,3 +1,7 @@
+#
+# Setup Route53 domain mapping and k8s to manage
+#
+
 data "aws_route53_zone" "k8s-dns" {
   name = var.eks_extra_config["domain"]
 }
