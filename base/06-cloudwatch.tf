@@ -17,6 +17,13 @@ resource "kubernetes_namespace" "cloudwatch" {
   }
 }
 
+#
+# Following is workaround of terraform limitation.
+# Resource gets updated only if the file in url changes
+# 1. Get sha1 of the yaml file from url
+# 2. Apply the yaml if sha1 changes
+#
+
 data "external" "cloudwatch-config" {
   program = ["bash", "${path.module}/sha1-http.sh"]
   query = {
