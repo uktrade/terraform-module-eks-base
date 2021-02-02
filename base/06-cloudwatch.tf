@@ -5,7 +5,6 @@
 
 locals {
   cloudwatch_url = "https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/master/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cwagent"
-  statsd_url = "https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/master/k8s-deployment-manifest-templates/deployment-mode/daemonset/cwagent-statsd/cwagent-statsd.yaml"
 }
 
 resource "kubernetes_namespace" "cloudwatch" {
@@ -116,24 +115,4 @@ resource "null_resource" "cloudwatch-daemonset" {
     build_number = data.external.cloudwatch-daemonset.result.sha1
   }
   depends_on = [kubernetes_namespace.cloudwatch, null_resource.cloudwatch-sa, null_resource.cloudwatch-config-patch]
-}
-
-data "external" "cloudwatch-statsd" {
-  program = ["bash", "${path.module}/sha1-http.sh"]
-  query = {
-    url = local.statsd_url
-  }
-}
-
-resource "null_resource" "cloudwatch-statsd" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f ${local.statsd_url}"
-    environment = {
-      KUBECONFIG = var.kubeconfig_filename
-    }
-  }
-  triggers = {
-    build_number = data.external.cloudwatch-statsd.result.sha1
-  }
-  depends_on = [kubernetes_namespace.cloudwatch]
 }
