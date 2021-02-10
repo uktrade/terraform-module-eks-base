@@ -23,7 +23,7 @@ config:
     upstreams = ["https://console.${var.eks_extra_config["domain"]}/"]
 extraArgs:
   silence-ping-logging: true
-  email_domain: "*"
+  email-domain: "*"
 ingress:
   enabled: true
   annotations:
