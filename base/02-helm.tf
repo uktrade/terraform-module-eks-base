@@ -16,6 +16,12 @@
 # aws-efs-csi-driver  	https://kubernetes-sigs.github.io/aws-efs-csi-driver
 # harbor              	https://helm.goharbor.io
 # sentry              	https://sentry-kubernetes.github.io/charts
+# stratos             	https://cloudfoundry.github.io/stratos
+# hashicorp           	https://helm.releases.hashicorp.com
+# gitlab              	https://charts.gitlab.io/
+# grafana             	https://grafana.github.io/helm-charts
+# autoscaler          	https://kubernetes.github.io/autoscaler
+#
 
 resource "helm_release" "reloader" {
   name = "reloader"
