@@ -16,7 +16,6 @@ config:
     provider = "${var.dashboard_oauth_config["provider"]}"
     github_org = "${var.dashboard_oauth_config["github_org"]}"
     github_team = "${var.dashboard_oauth_config["github_team"]}"
-    email_domains = ["*"]
     cookie_refresh = 60
     cookie_secure = true
     pass_access_token = true
@@ -24,6 +23,7 @@ config:
     upstreams = ["https://console.${var.eks_extra_config["domain"]}/"]
 extraArgs:
   silence-ping-logging: true
+  email_domain: *
 ingress:
   enabled: true
   annotations:
