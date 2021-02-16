@@ -13,15 +13,17 @@ config:
   clientSecret: "${var.dashboard_oauth_config["client_secret"]}"
   cookieSecret: "${var.dashboard_oauth_config["cookie_secret"]}"
   configFile: |-
-    provider = "${var.dashboard_oauth_config["provider"]}"
-    github_org = "${var.dashboard_oauth_config["github_org"]}"
-    github_team = "${var.dashboard_oauth_config["github_team"]}"
-    cookie_refresh = 60
-    cookie_secure = true
     pass_access_token = true
     reverse_proxy = true
     upstreams = ["https://console.${var.eks_extra_config["domain"]}/"]
 extraArgs:
+  provider: "${var.dashboard_oauth_config["provider"]}"
+  github-org: "${var.dashboard_oauth_config["github_org"]}"
+  github-team: "${var.dashboard_oauth_config["github_team"]}"
+  pass-access-token: true
+  cookie-refresh: 60
+  cookie-secure: true
+  reverse-proxy: true
   silence-ping-logging: true
   email-domain: "*"
 ingress:
